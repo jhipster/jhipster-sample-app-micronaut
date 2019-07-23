@@ -3,7 +3,6 @@ package io.github.jhipster.sample.config;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 
-import io.github.jhipster.config.JHipsterProperties;
 
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.Level;
@@ -16,6 +15,9 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.filter.EvaluatorFilter;
 import ch.qos.logback.core.spi.ContextAwareBase;
 import ch.qos.logback.core.spi.FilterReply;
+import io.github.jhipster.sample.util.JHipsterProperties;
+import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.Property;
 import net.logstash.logback.appender.LogstashTcpSocketAppender;
 import net.logstash.logback.composite.ContextJsonProvider;
 import net.logstash.logback.composite.GlobalCustomFieldsJsonProvider;
@@ -34,10 +36,11 @@ import net.logstash.logback.encoder.LogstashEncoder;
 import net.logstash.logback.stacktrace.ShortenedThrowableConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+import javax.inject.Singleton;
+
+@Singleton
+@Context
 public class LoggingConfiguration {
 
     private static final String CONSOLE_APPENDER_NAME = "CONSOLE";
@@ -56,8 +59,9 @@ public class LoggingConfiguration {
 
     private final JHipsterProperties jHipsterProperties;
 
-    public LoggingConfiguration(@Value("${spring.application.name}") String appName, @Value("${server.port}") String serverPort,
-         JHipsterProperties jHipsterProperties) {
+    public LoggingConfiguration(@Property(name = "micronaut.application.name") String appName,
+                                @Property(name = "micronaut.server.port") String serverPort,
+                                JHipsterProperties jHipsterProperties) {
         this.appName = appName;
         this.serverPort = serverPort;
         this.jHipsterProperties = jHipsterProperties;

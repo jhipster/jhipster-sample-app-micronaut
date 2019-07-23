@@ -1,8 +1,11 @@
 package io.github.jhipster.sample.service.dto;
 
+import io.micronaut.core.annotation.Introspected;
+
 /**
  * A DTO representing a password change required data - current and new password.
  */
+@Introspected
 public class PasswordChangeDTO {
     private String currentPassword;
     private String newPassword;

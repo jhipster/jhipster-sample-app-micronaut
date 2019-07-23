@@ -1,9 +1,12 @@
 package io.github.jhipster.sample.security;
 
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.nimbusds.jose.proc.SecurityContext;
+import io.micronaut.http.context.ServerRequestContext;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.UserDetails;
+import io.micronaut.security.utils.SecurityService;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -20,17 +23,9 @@ public final class SecurityUtils {
      * @return the login of the current user.
      */
     public static Optional<String> getCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(securityContext.getAuthentication())
-            .map(authentication -> {
-                if (authentication.getPrincipal() instanceof UserDetails) {
-                    UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-                    return springSecurityUser.getUsername();
-                } else if (authentication.getPrincipal() instanceof String) {
-                    return (String) authentication.getPrincipal();
-                }
-                return null;
-            });
+        return ServerRequestContext.currentRequest()
+            .flatMap(request -> request.getUserPrincipal(Authentication.class))
+            .map(Authentication::getName);
     }
 
     /**
@@ -38,12 +33,12 @@ public final class SecurityUtils {
      *
      * @return the JWT of the current user.
      */
-    public static Optional<String> getCurrentUserJWT() {
+/*    public static Optional<String> getCurrentUserJWT() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return Optional.ofNullable(securityContext.getAuthentication())
             .filter(authentication -> authentication.getCredentials() instanceof String)
             .map(authentication -> (String) authentication.getCredentials());
-    }
+    }*/
 
     /**
      * Check if a user is authenticated.
@@ -51,11 +46,9 @@ public final class SecurityUtils {
      * @return true if the user is authenticated, false otherwise.
      */
     public static boolean isAuthenticated() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(securityContext.getAuthentication())
-            .map(authentication -> authentication.getAuthorities().stream()
-                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(AuthoritiesConstants.ANONYMOUS)))
-            .orElse(false);
+        return ServerRequestContext.currentRequest()
+            .flatMap(request -> request.getUserPrincipal(Authentication.class))
+            .isPresent();
     }
 
     /**
@@ -67,10 +60,12 @@ public final class SecurityUtils {
      * @return true if the current user has the authority, false otherwise.
      */
     public static boolean isCurrentUserInRole(String authority) {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(securityContext.getAuthentication())
-            .map(authentication -> authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority)))
+        return ServerRequestContext.currentRequest()
+            .flatMap(request -> request.getUserPrincipal(Authentication.class))
+            .map(authentication -> authentication.getAttributes().get("roles"))
+            .filter(Collection.class::isInstance)
+            .map(Collection.class::cast)
+            .map(roles -> roles.stream().anyMatch(role -> role.equals(authority)))
             .orElse(false);
     }
 }

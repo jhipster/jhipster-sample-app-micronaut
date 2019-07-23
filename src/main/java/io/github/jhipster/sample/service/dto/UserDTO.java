@@ -4,6 +4,7 @@ import io.github.jhipster.sample.config.Constants;
 
 import io.github.jhipster.sample.domain.Authority;
 import io.github.jhipster.sample.domain.User;
+import io.micronaut.core.annotation.Introspected;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * A DTO representing a user, with his authorities.
  */
+@Introspected
 public class UserDTO {
 
     private Long id;
@@ -66,9 +68,9 @@ public class UserDTO {
         this.activated = user.getActivated();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
-        this.createdBy = user.getCreatedBy();
+        //this.createdBy = user.getCreatedBy();
         this.createdDate = user.getCreatedDate();
-        this.lastModifiedBy = user.getLastModifiedBy();
+        //this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getName)

@@ -2,28 +2,29 @@ package io.github.jhipster.sample.service;
 
 import io.github.jhipster.sample.domain.User;
 
-import io.github.jhipster.config.JHipsterProperties;
 
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import javax.inject.Singleton;
 import javax.mail.internet.MimeMessage;
 
+import io.github.jhipster.sample.util.JHipsterProperties;
+import io.micronaut.context.MessageSource;
+import io.micronaut.scheduling.annotation.Async;
+import io.micronaut.views.thymeleaf.ThymeleafViewsRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
 /**
  * Service for sending emails.
  * <p>
  * We use the {@link Async} annotation to send emails asynchronously.
  */
-@Service
+@Singleton
 public class MailService {
 
     private final Logger log = LoggerFactory.getLogger(MailService.class);
@@ -37,16 +38,16 @@ public class MailService {
     private final JavaMailSender javaMailSender;
 
     private final MessageSource messageSource;
+    private final ThymeleafViewsRenderer viewsRenderer;
 
-    private final SpringTemplateEngine templateEngine;
 
     public MailService(JHipsterProperties jHipsterProperties, JavaMailSender javaMailSender,
-            MessageSource messageSource, SpringTemplateEngine templateEngine) {
+                       MessageSource messageSource, ThymeleafViewsRenderer viewsRenderer) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
-        this.templateEngine = templateEngine;
+        this.viewsRenderer = viewsRenderer;
     }
 
     @Async
@@ -79,8 +80,10 @@ public class MailService {
         Context context = new Context(locale);
         context.setVariable(USER, user);
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
-        String content = templateEngine.process(templateName, context);
-        String subject = messageSource.getMessage(titleKey, null, locale);
+        StringWriter writer = new StringWriter();
+        viewsRenderer.render(templateName, context, writer);
+        String content = writer.toString();
+        String subject = messageSource.getMessage(titleKey, MessageSource.MessageContext.of(locale)).orElse(null);
         sendEmail(user.getEmail(), subject, content, false, true);
 
     }

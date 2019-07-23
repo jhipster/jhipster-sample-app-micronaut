@@ -1,17 +1,18 @@
 package io.github.jhipster.sample.repository;
 
 import io.github.jhipster.sample.domain.Operation;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import io.micronaut.data.annotation.Query;
+import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.repository.JpaRepository;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Spring Data  repository for the Operation entity.
+ * Micronaut Predator repository for the Operation entity.
  */
 @Repository
 public interface OperationRepository extends JpaRepository<Operation, Long> {
@@ -24,6 +25,6 @@ public interface OperationRepository extends JpaRepository<Operation, Long> {
     List<Operation> findAllWithEagerRelationships();
 
     @Query("select operation from Operation operation left join fetch operation.labels where operation.id =:id")
-    Optional<Operation> findOneWithEagerRelationships(@Param("id") Long id);
+    Optional<Operation> findOneWithEagerRelationships(Long id);
 
 }

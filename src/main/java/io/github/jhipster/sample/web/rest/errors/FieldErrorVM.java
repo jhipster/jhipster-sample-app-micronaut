@@ -1,7 +1,10 @@
 package io.github.jhipster.sample.web.rest.errors;
 
+import io.micronaut.core.annotation.Introspected;
+
 import java.io.Serializable;
 
+@Introspected
 public class FieldErrorVM implements Serializable {
 
     private static final long serialVersionUID = 1L;

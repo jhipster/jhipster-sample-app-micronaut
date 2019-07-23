@@ -7,26 +7,22 @@ import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.MailService;
 import io.github.jhipster.sample.service.UserService;
 import io.github.jhipster.sample.service.dto.UserDTO;
+import io.github.jhipster.sample.util.HeaderUtil;
+import io.github.jhipster.sample.util.PaginationUtil;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.sample.web.rest.errors.EmailAlreadyUsedException;
 import io.github.jhipster.sample.web.rest.errors.LoginAlreadyUsedException;
 
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
-
+import io.micronaut.context.annotation.Value;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.*;
+import io.micronaut.http.uri.UriBuilder;
+import io.micronaut.security.annotation.Secured;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -57,13 +53,12 @@ import java.util.*;
  * <p>
  * Another option would be to have a specific JPA entity graph to handle this case.
  */
-@RestController
-@RequestMapping("/api")
+@Controller("/api")
 public class UserResource {
 
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${jhipster.client-app.name}")
     private String applicationName;
 
     private final UserService userService;
@@ -87,13 +82,13 @@ public class UserResource {
      * The user needs to be activated on creation.
      *
      * @param userDTO the user to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
+     * @return the {@link HttpResponse} with status {@code 201 (Created)} and with body the new user, or with status {@code 400 (Bad Request)} if the login or email is already in use.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
      */
-    @PostMapping("/users")
-    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) throws URISyntaxException {
+    @Post("/users")
+    @Secured(AuthoritiesConstants.ADMIN)
+    public HttpResponse<User> createUser(@Valid @Body UserDTO userDTO) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDTO);
 
         if (userDTO.getId() != null) {
@@ -106,8 +101,12 @@ public class UserResource {
         } else {
             User newUser = userService.createUser(userDTO);
             mailService.sendCreationEmail(newUser);
-            return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
-                .headers(HeaderUtil.createAlert(applicationName,  "userManagement.created", newUser.getLogin()))
+            return HttpResponse.<User>created(new URI("/api/users/" + newUser.getLogin()))
+                .headers(headers ->
+                    HeaderUtil.createAlert(headers,
+                        applicationName,
+                        "userManagement.created",
+                        newUser.getLogin()))
                 .body(newUser);
         }
     }
@@ -116,13 +115,13 @@ public class UserResource {
      * {@code PUT /users} : Updates an existing User.
      *
      * @param userDTO the user to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated user.
+     * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the updated user.
      * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already in use.
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use.
      */
-    @PutMapping("/users")
-    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
+    @Put("/users")
+    @Secured(AuthoritiesConstants.ADMIN)
+    public HttpResponse<UserDTO> updateUser(@Valid @Body UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
@@ -134,29 +133,32 @@ public class UserResource {
         }
         Optional<UserDTO> updatedUser = userService.updateUser(userDTO);
 
-        return ResponseUtil.wrapOrNotFound(updatedUser,
-            HeaderUtil.createAlert(applicationName, "userManagement.updated", userDTO.getLogin()));
+        return updatedUser.map(user ->
+            HttpResponse.ok(user)
+                .headers(headers -> HeaderUtil.createAlert(headers, applicationName, "userManagement.updated", userDTO.getLogin()))
+            ).orElse(HttpResponse.notFound());
     }
 
     /**
      * {@code GET /users} : get all users.
      *
      * @param pageable the pagination information.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
+     * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body all users.
      */
-    @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers(@RequestParam MultiValueMap<String, String> queryParams, UriComponentsBuilder uriBuilder, Pageable pageable) {
+    @Get("/users")
+    public HttpResponse<List<UserDTO>> getAllUsers(HttpRequest request, Pageable pageable) {
         final Page<UserDTO> page = userService.getAllManagedUsers(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
-        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+        return HttpResponse.ok(page.getContent()).headers(headers ->
+            PaginationUtil.generatePaginationHttpHeaders(headers, UriBuilder.of(request.getPath()), page)
+        );
     }
 
     /**
      * Gets a list of all roles.
      * @return a string list of all roles.
      */
-    @GetMapping("/users/authorities")
-    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Get("/users/authorities")
+    @Secured(AuthoritiesConstants.ADMIN)
     public List<String> getAuthorities() {
         return userService.getAuthorities();
     }
@@ -165,27 +167,26 @@ public class UserResource {
      * {@code GET /users/:login} : get the "login" user.
      *
      * @param login the login of the user to find.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
+     * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
+    @Get("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    public Optional<UserDTO> getUser(@PathVariable String login) {
         log.debug("REST request to get User : {}", login);
-        return ResponseUtil.wrapOrNotFound(
-            userService.getUserWithAuthoritiesByLogin(login)
-                .map(UserDTO::new));
+        return userService.getUserWithAuthoritiesByLogin(login)
+                .map(UserDTO::new);
     }
 
     /**
      * {@code DELETE /users/:login} : delete the "login" User.
      *
      * @param login the login of the user to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     * @return the {@link HttpResponse} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
-    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<Void> deleteUser(@PathVariable String login) {
+    @Delete("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @Secured(AuthoritiesConstants.ADMIN)
+    public HttpResponse deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);
-        return ResponseEntity.noContent().headers(HeaderUtil.createAlert(applicationName,  "userManagement.deleted", login)).build();
+        return HttpResponse.noContent().headers(headers -> HeaderUtil.createAlert(headers, applicationName,  "userManagement.deleted", login));
     }
 }

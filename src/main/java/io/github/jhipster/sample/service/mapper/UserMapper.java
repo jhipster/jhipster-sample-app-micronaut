@@ -4,8 +4,7 @@ import io.github.jhipster.sample.domain.Authority;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.service.dto.UserDTO;
 
-import org.springframework.stereotype.Service;
-
+import javax.inject.Singleton;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
  * Normal mappers are generated using MapStruct, this one is hand-coded as MapStruct
  * support is still in beta, and requires a manual step with an IDE.
  */
-@Service
+@Singleton
 public class UserMapper {
 
     public List<UserDTO> usersToUserDTOs(List<User> users) {

@@ -26,7 +26,7 @@ export class JhiMetricsMonitoringComponent implements OnInit {
     this.metricsService.getMetrics().subscribe(metrics => {
       this.metrics = metrics;
       this.metricsService.threadDump().subscribe(data => {
-        this.threadData = data.threads;
+        this.threadData = data;
         this.updatingMetrics = false;
       });
     });

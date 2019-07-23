@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { LocalStorageService, SessionStorageService } from 'ngx-webstorage';
@@ -22,10 +22,12 @@ export class AuthServerProvider {
     };
     return this.http.post(SERVER_API_URL + 'api/authenticate', data, { observe: 'response' }).pipe(map(authenticateSuccess.bind(this)));
 
-    function authenticateSuccess(resp) {
-      const bearerToken = resp.headers.get('Authorization');
-      if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
-        const jwt = bearerToken.slice(7, bearerToken.length);
+    function authenticateSuccess(resp: HttpResponse<any>) {
+      console.log(resp);
+      console.log(resp.body);
+      console.log(resp.body.access_token);
+      const jwt = resp.body.access_token;
+      if (jwt) {
         this.storeAuthenticationToken(jwt, credentials.rememberMe);
         return jwt;
       }

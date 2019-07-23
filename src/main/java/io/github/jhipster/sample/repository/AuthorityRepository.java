@@ -2,10 +2,12 @@ package io.github.jhipster.sample.repository;
 
 import io.github.jhipster.sample.domain.Authority;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.repository.JpaRepository;
 
 /**
- * Spring Data JPA repository for the {@link Authority} entity.
+ * Micronaut Predator repository for the {@link Authority} entity.
  */
+@Repository
 public interface AuthorityRepository extends JpaRepository<Authority, String> {
 }

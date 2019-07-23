@@ -1,6 +1,7 @@
 package io.github.jhipster.sample.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import io.micronaut.context.annotation.ConfigurationProperties;
 
 /**
  * Properties specific to Jhipster Sample Application.
@@ -8,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Properties are configured in the {@code application.yml} file.
  * See {@link io.github.jhipster.config.JHipsterProperties} for a good example.
  */
-@ConfigurationProperties(prefix = "application", ignoreUnknownFields = false)
+@ConfigurationProperties("application")
 public class ApplicationProperties {
 
 }

@@ -1,12 +1,11 @@
 package io.github.jhipster.sample.repository;
 
 import io.github.jhipster.sample.domain.Label;
-import org.springframework.data.jpa.repository.*;
-import org.springframework.stereotype.Repository;
-
+import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.repository.JpaRepository;
 
 /**
- * Spring Data  repository for the Label entity.
+ * Micronaut Predator repository for the Label entity.
  */
 @SuppressWarnings("unused")
 @Repository

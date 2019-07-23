@@ -21,22 +21,8 @@ export class JhiConfigurationComponent implements OnInit {
     this.reverse = false;
   }
 
-  keys(dict): Array<string> {
-    return dict === undefined ? [] : Object.keys(dict);
-  }
-
   ngOnInit() {
     this.configurationService.get().subscribe(configuration => {
-      this.configuration = configuration;
-
-      for (const config of configuration) {
-        if (config.properties !== undefined) {
-          this.configKeys.push(Object.keys(config.properties));
-        }
-      }
-    });
-
-    this.configurationService.getEnv().subscribe(configuration => {
       this.allConfiguration = configuration;
     });
   }

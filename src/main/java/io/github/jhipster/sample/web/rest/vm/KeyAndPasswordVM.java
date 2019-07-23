@@ -1,8 +1,11 @@
 package io.github.jhipster.sample.web.rest.vm;
 
+import io.micronaut.core.annotation.Introspected;
+
 /**
  * View Model object for storing the user's key and password.
  */
+@Introspected
 public class KeyAndPasswordVM {
 
     private String key;

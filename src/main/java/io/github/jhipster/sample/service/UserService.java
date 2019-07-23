@@ -11,16 +11,16 @@ import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.service.util.RandomUtil;
 import io.github.jhipster.sample.web.rest.errors.*;
 
+import io.micronaut.cache.CacheManager;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+import io.micronaut.scheduling.annotation.Scheduled;
+import io.micronaut.security.authentication.providers.PasswordEncoder;
+import io.micronaut.spring.tx.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Singleton;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * Service class for managing users.
  */
-@Service
+@Singleton
 @Transactional
 public class UserService {
 
@@ -246,22 +246,23 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new);
+        Page<User> userPage = userRepository.findAllByLoginNot(Constants.ANONYMOUS_USER, pageable);
+        return Page.of(userPage.getContent().stream().map(UserDTO::new).collect(Collectors.toList()), pageable, userPage.getTotalSize());
     }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
+        return userRepository.findOneByLogin(login);
     }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities(Long id) {
-        return userRepository.findOneWithAuthoritiesById(id);
+        return userRepository.findOneById(id);
     }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
     }
 
     /**
@@ -272,7 +273,7 @@ public class UserService {
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
         userRepository
-            .findAllByActivatedIsFalseAndCreatedDateBefore(Instant.now().minus(3, ChronoUnit.DAYS))
+            .findAllByActivatedFalseAndCreatedDateBefore(Instant.now().minus(3, ChronoUnit.DAYS))
             .forEach(user -> {
                 log.debug("Deleting not activated user {}", user.getLogin());
                 userRepository.delete(user);
@@ -285,11 +286,13 @@ public class UserService {
      * @return a list of all the authorities.
      */
     public List<String> getAuthorities() {
-        return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
+        return authorityRepository.findAll().stream()
+            .map(Authority::getName).collect(Collectors.toList());
     }
 
     private void clearUserCaches(User user) {
-        Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).evict(user.getLogin());
-        Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).evict(user.getEmail());
+        Objects.requireNonNull(
+            cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).invalidate(user.getLogin());
+        Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE)).invalidate(user.getEmail());
     }
 }

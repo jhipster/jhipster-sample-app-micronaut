@@ -12,21 +12,22 @@ import io.github.jhipster.sample.web.rest.errors.*;
 import io.github.jhipster.sample.web.rest.vm.KeyAndPasswordVM;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.Nullable;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.*;
 
 /**
  * REST controller for managing the current user's account.
  */
-@RestController
-@RequestMapping("/api")
+@Controller("/api")
 public class AccountResource {
 
     private static class AccountResourceException extends RuntimeException {
@@ -58,9 +59,9 @@ public class AccountResource {
      * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already used.
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already used.
      */
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+    @Post("/register")
+    @Status(HttpStatus.CREATED)
+    public void registerAccount(@Valid @Body ManagedUserVM managedUserVM) {
         if (!checkPasswordLength(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
         }
@@ -74,8 +75,8 @@ public class AccountResource {
      * @param key the activation key.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
      */
-    @GetMapping("/activate")
-    public void activateAccount(@RequestParam(value = "key") String key) {
+    @Get("/activate{?key}")
+    public void activateAccount(@Nullable @QueryValue String key) {
         Optional<User> user = userService.activateRegistration(key);
         if (!user.isPresent()) {
             throw new AccountResourceException("No user was found for this activation key");
@@ -88,10 +89,10 @@ public class AccountResource {
      * @param request the HTTP request.
      * @return the login if the user is authenticated.
      */
-    @GetMapping("/authenticate")
-    public String isAuthenticated(HttpServletRequest request) {
+    @Get("/authenticate")
+    public Optional<String> isAuthenticated(HttpRequest<?> request) {
         log.debug("REST request to check if the current user is authenticated");
-        return request.getRemoteUser();
+        return request.getUserPrincipal().map(Principal::getName);
     }
 
     /**
@@ -100,7 +101,7 @@ public class AccountResource {
      * @return the current user.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
-    @GetMapping("/account")
+    @Get("/account")
     public UserDTO getAccount() {
         return userService.getUserWithAuthorities()
             .map(UserDTO::new)
@@ -114,8 +115,8 @@ public class AccountResource {
      * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already used.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
      */
-    @PostMapping("/account")
-    public void saveAccount(@Valid @RequestBody UserDTO userDTO) {
+    @Post("/account")
+    public void saveAccount(@Valid @Body UserDTO userDTO) {
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
@@ -135,8 +136,8 @@ public class AccountResource {
      * @param passwordChangeDto current and new password.
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
-    @PostMapping(path = "/account/change-password")
-    public void changePassword(@RequestBody PasswordChangeDTO passwordChangeDto) {
+    @Post("/account/change-password")
+    public void changePassword(@Body PasswordChangeDTO passwordChangeDto) {
         if (!checkPasswordLength(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
         }
@@ -149,8 +150,8 @@ public class AccountResource {
      * @param mail the mail of the user.
      * @throws EmailNotFoundException {@code 400 (Bad Request)} if the email address is not registered.
      */
-    @PostMapping(path = "/account/reset-password/init")
-    public void requestPasswordReset(@RequestBody String mail) {
+    @Post("/account/reset-password/init")
+    public void requestPasswordReset(@Body String mail) {
        mailService.sendPasswordResetMail(
            userService.requestPasswordReset(mail)
                .orElseThrow(EmailNotFoundException::new)
@@ -164,8 +165,8 @@ public class AccountResource {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the password is incorrect.
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
      */
-    @PostMapping(path = "/account/reset-password/finish")
-    public void finishPasswordReset(@RequestBody KeyAndPasswordVM keyAndPassword) {
+    @Post("/account/reset-password/finish")
+    public void finishPasswordReset(@Body KeyAndPasswordVM keyAndPassword) {
         if (!checkPasswordLength(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
         }

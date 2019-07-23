@@ -20,7 +20,7 @@ export class ProfileService {
           map((res: HttpResponse<ProfileInfo>) => {
             const data = res.body;
             const pi = new ProfileInfo();
-            pi.activeProfiles = data['activeProfiles'];
+            pi.activeProfiles = data['active-profiles'];
             const displayRibbonOnProfiles = data['display-ribbon-on-profiles'].split(',');
             if (pi.activeProfiles) {
               const ribbonProfiles = displayRibbonOnProfiles.filter(profile => pi.activeProfiles.includes(profile));

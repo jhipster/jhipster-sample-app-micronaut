@@ -19,6 +19,7 @@ import {
   JhiConfigurationComponent,
   JhiDocsComponent
 } from './';
+import { KeyStartsWith } from 'app/admin/configuration/configuration.filter';
 
 @NgModule({
   imports: [
@@ -37,7 +38,8 @@ import {
     JhiHealthCheckComponent,
     JhiHealthModalComponent,
     JhiDocsComponent,
-    JhiMetricsMonitoringComponent
+    JhiMetricsMonitoringComponent,
+    KeyStartsWith
   ],
   providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
   entryComponents: [UserMgmtDeleteDialogComponent, JhiHealthModalComponent],

@@ -81,12 +81,6 @@
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" routerLink="admin/audits" routerLinkActive="active" (click)="collapseNavbar()">
-                            <fa-icon icon="bell" fixedWidth="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.audits">Audits</span>
-                        </a>
-                    </li>
-                    <li>
                         <a class="dropdown-item" routerLink="admin/logs" routerLinkActive="active" (click)="collapseNavbar()">
                             <fa-icon icon="tasks" fixedWidth="true"></fa-icon>
                             <span jhiTranslate="global.menu.admin.logs">Logs</span>
@@ -99,12 +93,6 @@
                         </a>
                     </li>
                     <!-- jhipster-needle-add-element-to-admin-menu - JHipster will add entities to the admin menu here -->
-                    <li *ngIf="!inProduction">
-                        <a class="dropdown-item" href='./h2-console' target="_tab" (click)="collapseNavbar()">
-                            <fa-icon icon="hdd" fixedWidth="true"></fa-icon>
-                            <span jhiTranslate="global.menu.admin.database">Database</span>
-                        </a>
-                    </li>
                 </ul>
             </li>
             <li ngbDropdown class="nav-item dropdown pointer" *ngIf="languages && languages.length > 1">

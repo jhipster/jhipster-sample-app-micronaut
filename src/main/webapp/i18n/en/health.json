@@ -13,7 +13,8 @@
     "indicator": {
       "diskSpace": "Disk space",
       "mail": "Email",
-      "db": "Database"
+      "jdbc": "Database",
+      "compositeDiscoveryClient()": "Service discovery"
     },
     "table": {
       "service": "Service name",

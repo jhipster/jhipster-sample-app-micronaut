@@ -1,20 +1,22 @@
 package io.github.jhipster.sample.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.Properties;
 
+import io.github.jhipster.sample.util.JHipsterProperties;
+import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Factory;
 import org.ehcache.config.builders.*;
 import org.ehcache.jsr107.Eh107Configuration;
 
-import org.hibernate.cache.jcache.ConfigSettings;
-import io.github.jhipster.config.JHipsterProperties;
+import org.ehcache.jsr107.EhcacheCachingProvider;
 
-import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.*;
+import javax.cache.CacheManager;
+import javax.inject.Singleton;
 
-@Configuration
-@EnableCaching
+@Factory
 public class CacheConfiguration {
 
     private final javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration;
@@ -30,27 +32,28 @@ public class CacheConfiguration {
                 .build());
     }
 
-    @Bean
-    public HibernatePropertiesCustomizer hibernatePropertiesCustomizer(javax.cache.CacheManager cacheManager) {
-        return hibernateProperties -> hibernateProperties.put(ConfigSettings.CACHE_MANAGER, cacheManager);
+    @Singleton
+    public CacheManager cacheManager(ApplicationContext applicationContext) {
+        CacheManager cacheManager = new EhcacheCachingProvider().getCacheManager(
+            null, applicationContext.getClassLoader(), new Properties());
+        customizeCacheManager(cacheManager);
+        return cacheManager;
     }
 
-    @Bean
-    public JCacheManagerCustomizer cacheManagerCustomizer() {
-        return cm -> {
-            createCache(cm, io.github.jhipster.sample.repository.UserRepository.USERS_BY_LOGIN_CACHE);
-            createCache(cm, io.github.jhipster.sample.repository.UserRepository.USERS_BY_EMAIL_CACHE);
-            createCache(cm, io.github.jhipster.sample.domain.User.class.getName());
-            createCache(cm, io.github.jhipster.sample.domain.Authority.class.getName());
-            createCache(cm, io.github.jhipster.sample.domain.User.class.getName() + ".authorities");
-            createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName());
-            createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName() + ".operations");
-            createCache(cm, io.github.jhipster.sample.domain.Label.class.getName());
-            createCache(cm, io.github.jhipster.sample.domain.Label.class.getName() + ".operations");
-            createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName());
-            createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName() + ".labels");
-            // jhipster-needle-ehcache-add-entry
-        };
+    private void customizeCacheManager(CacheManager cm) {
+        createCache(cm, io.github.jhipster.sample.repository.UserRepository.USERS_BY_LOGIN_CACHE);
+        createCache(cm, io.github.jhipster.sample.repository.UserRepository.USERS_BY_EMAIL_CACHE);
+        createCache(cm, io.github.jhipster.sample.domain.User.class.getName());
+        createCache(cm, io.github.jhipster.sample.domain.Authority.class.getName());
+        createCache(cm, io.github.jhipster.sample.domain.User.class.getName() + ".authorities");
+        createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName());
+        createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName() + ".operations");
+        createCache(cm, io.github.jhipster.sample.domain.Label.class.getName());
+        createCache(cm, io.github.jhipster.sample.domain.Label.class.getName() + ".operations");
+        createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName());
+        createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName() + ".labels");
+        // jhipster-needle-ehcache-add-entry
+
     }
 
     private void createCache(javax.cache.CacheManager cm, String cacheName) {

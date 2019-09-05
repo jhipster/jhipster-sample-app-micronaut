@@ -1,10 +1,11 @@
 package io.github.jhipster.sample.repository.timezone;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+
+import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.repository.JpaRepository;
 
 /**
- * Spring Data JPA repository for the {@link DateTimeWrapper} entity.
+ * Micronaut Data JPA repository for the {@link DateTimeWrapper} entity.
  */
 @Repository
 public interface DateTimeWrapperRepository extends JpaRepository<DateTimeWrapper, Long> {

@@ -3,14 +3,15 @@ package io.github.jhipster.sample.config.timezone;
 import io.github.jhipster.sample.JhipsterSampleApplicationApp;
 import io.github.jhipster.sample.repository.timezone.DateTimeWrapper;
 import io.github.jhipster.sample.repository.timezone.DateTimeWrapperRepository;
+import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
+import javax.sql.DataSource;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
@@ -20,18 +21,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests for the UTC Hibernate configuration.
  */
-@SpringBootTest(classes = JhipsterSampleApplicationApp.class)
+@MicronautTest(application = JhipsterSampleApplicationApp.class)
 public class HibernateTimeZoneIT {
 
-    @Autowired
-    private DateTimeWrapperRepository dateTimeWrapperRepository;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    @Inject DateTimeWrapperRepository dateTimeWrapperRepository;
+    @Inject DataSource dataSource;
 
     private DateTimeWrapper dateTimeWrapper;
     private DateTimeFormatter dateTimeFormatter;
     private DateTimeFormatter timeFormatter;
     private DateTimeFormatter dateFormatter;
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     public void setup() {
@@ -54,6 +54,8 @@ public class HibernateTimeZoneIT {
 
         dateFormatter = DateTimeFormatter
             .ofPattern("yyyy-MM-dd");
+
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Test

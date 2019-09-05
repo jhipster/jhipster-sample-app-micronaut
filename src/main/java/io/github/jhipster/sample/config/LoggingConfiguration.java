@@ -18,6 +18,7 @@ import ch.qos.logback.core.spi.FilterReply;
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.runtime.server.EmbeddedServer;
 import net.logstash.logback.appender.LogstashTcpSocketAppender;
 import net.logstash.logback.composite.ContextJsonProvider;
 import net.logstash.logback.composite.GlobalCustomFieldsJsonProvider;
@@ -60,10 +61,10 @@ public class LoggingConfiguration {
     private final JHipsterProperties jHipsterProperties;
 
     public LoggingConfiguration(@Property(name = "micronaut.application.name") String appName,
-                                @Property(name = "micronaut.server.port") String serverPort,
+                                EmbeddedServer embeddedServer,
                                 JHipsterProperties jHipsterProperties) {
         this.appName = appName;
-        this.serverPort = serverPort;
+        this.serverPort = String.valueOf(embeddedServer.getPort());
         this.jHipsterProperties = jHipsterProperties;
         if (this.jHipsterProperties.getLogging().isUseJsonFormat()) {
             addJsonConsoleAppender(context);
@@ -81,7 +82,7 @@ public class LoggingConfiguration {
 
     private void addJsonConsoleAppender(LoggerContext context) {
         log.info("Initializing Console logging");
-        
+
         // More documentation is available at: https://github.com/logstash/logstash-logback-encoder
         ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
         consoleAppender.setContext(context);
@@ -122,14 +123,14 @@ public class LoggingConfiguration {
         compositeJsonEncoder.start();
         return compositeJsonEncoder;
     }
-    
+
     private LogstashEncoder logstashEncoder() {
         final LogstashEncoder logstashEncoder = new LogstashEncoder();
         logstashEncoder.setThrowableConverter(throwableConverter());
         logstashEncoder.setCustomFields(customFields());
         return logstashEncoder;
     }
-    
+
     private LoggingEventJsonProviders jsonProviders(LoggerContext context) {
         final LoggingEventJsonProviders jsonProviders = new LoggingEventJsonProviders();
         jsonProviders.addArguments(new ArgumentsJsonProvider());
@@ -161,13 +162,13 @@ public class LoggingConfiguration {
         customFields.append("}");
         return customFields.toString();
     }
-    
+
     private LoggerNameJsonProvider loggerNameJsonProvider() {
         final LoggerNameJsonProvider loggerNameJsonProvider = new LoggerNameJsonProvider();
         loggerNameJsonProvider.setShortenedLoggerNameLength(20);
         return loggerNameJsonProvider;
     }
-    
+
     private StackTraceJsonProvider stackTraceJsonProvider() {
         StackTraceJsonProvider stackTraceJsonProvider = new StackTraceJsonProvider();
         stackTraceJsonProvider.setThrowableConverter(throwableConverter());
@@ -179,7 +180,7 @@ public class LoggingConfiguration {
         throwableConverter.setRootCauseFirst(true);
         return throwableConverter;
     }
-    
+
     private LoggingEventFormattedTimestampJsonProvider timestampJsonProvider() {
         final LoggingEventFormattedTimestampJsonProvider timestampJsonProvider = new LoggingEventFormattedTimestampJsonProvider();
         timestampJsonProvider.setTimeZone("UTC");
@@ -227,11 +228,11 @@ public class LoggingConfiguration {
      */
     class LogbackLoggerContextListener extends ContextAwareBase implements LoggerContextListener {
         private final JHipsterProperties jHipsterProperties;
-        
+
         private LogbackLoggerContextListener(JHipsterProperties jHipsterProperties) {
             this.jHipsterProperties = jHipsterProperties;
         }
-        
+
         @Override
         public boolean isResetResistant() {
             return true;

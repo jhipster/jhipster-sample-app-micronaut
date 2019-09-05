@@ -4,25 +4,27 @@ import io.github.jhipster.sample.JhipsterSampleApplicationApp;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.UserRepository;
 
+import io.micronaut.security.authentication.AuthenticationRequest;
+import io.micronaut.security.authentication.AuthenticationResponse;
+import io.micronaut.security.authentication.UserDetails;
+import io.micronaut.security.authentication.providers.PasswordEncoder;
+import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.annotation.MockBean;
+import io.reactivex.Flowable;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.inject.Inject;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Integrations tests for {@link DomainUserDetailsService}.
  */
-@SpringBootTest(classes = JhipsterSampleApplicationApp.class)
+@MicronautTest(application = JhipsterSampleApplicationApp.class)
 @Transactional
 public class DomainUserDetailsServiceIT {
 
@@ -33,11 +35,8 @@ public class DomainUserDetailsServiceIT {
     private static final String USER_THREE_LOGIN = "test-user-three";
     private static final String USER_THREE_EMAIL = "test-user-three@localhost";
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserDetailsService domainUserDetailsService;
+    @Inject UserRepository userRepository;
+    @Inject DatabaseAuthenticationProvider authenticationProvider;
 
     private User userOne;
     private User userTwo;
@@ -79,47 +78,124 @@ public class DomainUserDetailsServiceIT {
     @Test
     @Transactional
     public void assertThatUserCanBeFoundByLogin() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN);
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+        AuthenticationResponse response = Flowable.fromPublisher(authenticationProvider.authenticate(new AuthenticationRequest() {
+            @Override
+            public Object getIdentity() {
+                return userOne.getLogin();
+            }
+
+            @Override
+            public Object getSecret() {
+                return userOne.getPassword();
+            }
+        })).blockingFirst();
+        assertThat(response).isNotNull();
+        assertThat(((UserDetails) response).getUsername()).isEqualTo(USER_ONE_LOGIN);
     }
 
     @Test
     @Transactional
     public void assertThatUserCanBeFoundByLoginIgnoreCase() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_LOGIN.toUpperCase(Locale.ENGLISH));
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+        AuthenticationResponse response = Flowable.fromPublisher(authenticationProvider.authenticate(new AuthenticationRequest() {
+            @Override
+            public Object getIdentity() {
+                return userOne.getLogin().toUpperCase(Locale.ENGLISH);
+            }
+
+            @Override
+            public Object getSecret() {
+                return userOne.getPassword();
+            }
+        })).blockingFirst();
+        assertThat(response).isNotNull();
+        assertThat(((UserDetails) response).getUsername()).isEqualTo(USER_ONE_LOGIN);
     }
 
     @Test
     @Transactional
     public void assertThatUserCanBeFoundByEmail() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL);
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_TWO_LOGIN);
+        AuthenticationResponse response = Flowable.fromPublisher(authenticationProvider.authenticate(new AuthenticationRequest() {
+            @Override
+            public Object getIdentity() {
+                return userTwo.getEmail();
+            }
+
+            @Override
+            public Object getSecret() {
+                return userTwo.getPassword();
+            }
+        })).blockingFirst();
+        assertThat(response).isNotNull();
+        assertThat(((UserDetails) response).getUsername()).isEqualTo(USER_TWO_LOGIN);
     }
 
     @Test
     @Transactional
     public void assertThatUserCanNotBeFoundByEmailIgnoreCase() {
-        assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(
-            () -> domainUserDetailsService.loadUserByUsername(USER_TWO_EMAIL.toUpperCase(Locale.ENGLISH)));
+        AuthenticationResponse response = Flowable.fromPublisher(authenticationProvider.authenticate(new AuthenticationRequest() {
+            @Override
+            public Object getIdentity() {
+                return userTwo.getEmail().toUpperCase(Locale.ENGLISH);
+            }
+
+            @Override
+            public Object getSecret() {
+                return userTwo.getPassword();
+            }
+        })).blockingFirst();
+        assertThat(response).isNotNull();
+        assertThat(response.isAuthenticated()).isFalse();
     }
 
     @Test
     @Transactional
     public void assertThatEmailIsPrioritizedOverLogin() {
-        UserDetails userDetails = domainUserDetailsService.loadUserByUsername(USER_ONE_EMAIL);
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo(USER_ONE_LOGIN);
+        AuthenticationResponse response = Flowable.fromPublisher(authenticationProvider.authenticate(new AuthenticationRequest() {
+            @Override
+            public Object getIdentity() {
+                return userOne.getEmail();
+            }
+
+            @Override
+            public Object getSecret() {
+                return userOne.getPassword();
+            }
+        })).blockingFirst();
+        assertThat(response).isNotNull();
+        assertThat(((UserDetails) response).getUsername()).isEqualTo(USER_ONE_LOGIN);
     }
 
     @Test
     @Transactional
     public void assertThatUserNotActivatedExceptionIsThrownForNotActivatedUsers() {
-        assertThatExceptionOfType(UserNotActivatedException.class).isThrownBy(
-            () -> domainUserDetailsService.loadUserByUsername(USER_THREE_LOGIN));
+        AuthenticationResponse response = Flowable.fromPublisher(authenticationProvider.authenticate(new AuthenticationRequest() {
+            @Override
+            public Object getIdentity() {
+                return userThree.getLogin();
+            }
+
+            @Override
+            public Object getSecret() {
+                return userThree.getPassword();
+            }
+        })).blockingFirst();
+        assertThat(response).isNotNull();
+        assertThat(response.isAuthenticated()).isFalse();
     }
 
+
+    @MockBean(BcryptPasswordEncoder.class)
+    PasswordEncoder passwordEncoder() {
+        return new PasswordEncoder() {
+            @Override
+            public String encode(String rawPassword) {
+                return rawPassword;
+            }
+
+            @Override
+            public boolean matches(String rawPassword, String encodedPassword) {
+                return rawPassword.equals(encodedPassword);
+            }
+        };
+    }
 }

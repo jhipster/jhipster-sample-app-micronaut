@@ -1,14 +1,12 @@
 package io.github.jhipster.sample.security;
 
+import io.micronaut.http.HttpAttributes;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.context.ServerRequestContext;
+import io.micronaut.security.authentication.UserDetails;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,52 +18,39 @@ public class SecurityUtilsUnitTest {
 
     @Test
     public void testGetCurrentUserLogin() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "admin"));
-        SecurityContextHolder.setContext(securityContext);
-        Optional<String> login = SecurityUtils.getCurrentUserLogin();
-        assertThat(login).contains("admin");
+        HttpRequest request = HttpRequest.GET("/").setAttribute(HttpAttributes.PRINCIPAL, new UserDetails("admin", Collections.emptyList()));
+        ServerRequestContext.with(request, () -> {
+            Optional<String> login = SecurityUtils.getCurrentUserLogin();
+            assertThat(login).contains("admin");
+        });
     }
-
-/*    @Test
-    public void testgetCurrentUserJWT() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "token"));
-        SecurityContextHolder.setContext(securityContext);
-        Optional<String> jwt = SecurityUtils.getCurrentUserJWT();
-        assertThat(jwt).contains("token");
-    }*/
 
     @Test
     public void testIsAuthenticated() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "admin"));
-        SecurityContextHolder.setContext(securityContext);
-        boolean isAuthenticated = SecurityUtils.isAuthenticated();
-        assertThat(isAuthenticated).isTrue();
+        HttpRequest request = HttpRequest.GET("/").setAttribute(HttpAttributes.PRINCIPAL, new UserDetails("admin", Collections.emptyList()));
+        ServerRequestContext.with(request, () -> {
+            boolean isAuthenticated = SecurityUtils.isAuthenticated();
+            assertThat(isAuthenticated).isTrue();
+        });
     }
 
     @Test
     public void testAnonymousIsNotAuthenticated() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ANONYMOUS));
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("anonymous", "anonymous", authorities));
-        SecurityContextHolder.setContext(securityContext);
-        boolean isAuthenticated = SecurityUtils.isAuthenticated();
-        assertThat(isAuthenticated).isFalse();
+        HttpRequest request = HttpRequest.GET("/").setAttribute(HttpAttributes.PRINCIPAL, new UserDetails("anonymous", Collections.singletonList(AuthoritiesConstants.ANONYMOUS)));
+        ServerRequestContext.with(request, () -> {
+            boolean isAuthenticated = SecurityUtils.isAuthenticated();
+            assertThat(isAuthenticated).isFalse();
+        });
     }
 
     @Test
     public void testIsCurrentUserInRole() {
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.USER));
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("user", "user", authorities));
-        SecurityContextHolder.setContext(securityContext);
+        HttpRequest request = HttpRequest.GET("/").setAttribute(HttpAttributes.PRINCIPAL, new UserDetails("user", Collections.singletonList(AuthoritiesConstants.USER)));
 
-        assertThat(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.USER)).isTrue();
-        assertThat(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)).isFalse();
+        ServerRequestContext.with(request, () -> {
+            assertThat(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.USER)).isTrue();
+            assertThat(SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)).isFalse();
+        });
     }
 
 }

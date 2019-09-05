@@ -320,8 +320,8 @@
         </dependency>
         <dependency>
             <groupId>io.micronaut.data</groupId>
-            <artifactId>micronaut-predator-hibernate-jpa</artifactId>
-            <version>1.0.0.BUILD-SNAPSHOT</version>
+            <artifactId>micronaut-data-hibernate-jpa</artifactId>
+            <version>1.0.0.M1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -358,6 +358,12 @@
             <groupId>org.zalando</groupId>
             <artifactId>problem-violations</artifactId>
             <version>0.24.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.0.0</version>
+            <scope>test</scope>
         </dependency>
         <!-- Spring Cloud -->
         <dependency>
@@ -426,8 +432,8 @@
                         </path>
                         <path>
                             <groupId>io.micronaut.data</groupId>
-                            <artifactId>micronaut-predator-processor</artifactId>
-                            <version>1.0.0.BUILD-SNAPSHOT</version>
+                            <artifactId>micronaut-data-processor</artifactId>
+                            <version>1.0.0.M1</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -454,8 +460,8 @@
                                 </path>
                                 <path>
                                     <groupId>io.micronaut.data</groupId>
-                                    <artifactId>micronaut-predator-processor</artifactId>
-                                    <version>1.0.0.BUILD-SNAPSHOT</version>
+                                    <artifactId>micronaut-data-processor</artifactId>
+                                    <version>1.0.0.M1</version>
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>

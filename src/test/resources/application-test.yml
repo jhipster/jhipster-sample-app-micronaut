@@ -13,28 +13,24 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
-spring:
+micronaut:
   application:
     name: jhipsterSampleApplication
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
+
+datasources:
+  default:
     url: jdbc:h2:mem:jhipsterSampleApplication;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    name:
-    username:
-    password:
-    hikari:
-      auto-commit: false
-  jpa:
-    database-platform: io.github.jhipster.domain.util.FixedH2Dialect
+    username: ''
+    password: ''
+    auto-commit: false
+
+jpa:
+  default:
+    dialect: io.github.jhipster.domain.util.FixedH2Dialect
     database: H2
-    open-in-view: false
     show-sql: false
-    hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
     properties:
+      hibernate.ddl-auto: none
       hibernate.id.new_generator_mappings: true
       hibernate.connection.provider_disables_autocommit: true
       hibernate.cache.use_second_level_cache: false
@@ -42,34 +38,12 @@ spring:
       hibernate.generate_statistics: false
       hibernate.hbm2ddl.auto: validate
       hibernate.jdbc.time_zone: UTC
-  liquibase:
-    contexts: test
-  mail:
-    host: localhost
-  main:
-    allow-bean-definition-overriding: true
-  messages:
-    basename: i18n/messages
-  mvc:
-    favicon:
-      enabled: false
-  task:
-    execution:
-      thread-name-prefix: jhipster-sample-application-task-
-      pool:
-        core-size: 1
-        max-size: 50
-        queue-capacity: 10000
-    scheduling:
-      thread-name-prefix: jhipster-sample-application-scheduling-
-      pool:
-        size: 1
-  thymeleaf:
-    mode: HTML
 
-server:
-  port: 10344
-  address: localhost
+liquibase:
+  datasources:
+    default:
+      change-log: classpath:config/liquibase/master.xml
+      contexts: test
 
 # ===================================================================
 # JHipster specific properties

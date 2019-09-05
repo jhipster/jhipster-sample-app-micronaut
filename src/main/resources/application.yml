@@ -13,46 +13,6 @@
 # Full reference is available at:
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
-management:
-  endpoints:
-    web:
-      base-path: /management
-      exposure:
-        include: ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump']
-  endpoint:
-    health:
-      show-details: when-authorized
-    jhimetrics:
-      enabled: true
-  info:
-    git:
-      mode: full
-  health:
-    mail:
-      enabled: false # When using the MailService, configure an SMTP server and set this to true
-  metrics:
-    export:
-      # Prometheus is the default metrics backend
-      prometheus:
-        enabled: true
-        step: 60
-    enable:
-      http: true
-      jvm: true
-      logback: true
-      process: true
-      system: true
-    distribution:
-      percentiles-histogram:
-        all: true
-      percentiles:
-        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
-    tags:
-      application: ${micronaut.application.name}
-    web:
-      server:
-        auto-time-requests: true
-
 micronaut:
   application:
     name: jhipsterSampleApplication
@@ -66,7 +26,18 @@ micronaut:
       # Prometheus is the default metrics backend
       prometheus:
         enabled: true
-        step: 60
+        step: PT1M
+    binders:
+      jvm:
+        enabled: true
+      uptime:
+        enabled: true
+      processor:
+        enabled: true
+      logback:
+        enabled: true
+      web:
+        enabled: true
   security:
     enabled: true
     endpoints:
@@ -114,54 +85,39 @@ micronaut:
       - pattern: /management/**
         access: ROLE_ADMIN
 
+  executors:
+    scheduled:
+      type: scheduled
+      core-pool-size: 2
+  server:
+    # By default CORS is disabled. Uncomment to enable.
+    # cors:
+    #   enabled: true
+    #   single-header: true
+    #   configurations:
+    #     default:
+    #       allowed-origins: "*"
+    #       allowed-methods: "*"
+    #       allowed-headers: "*"
+    #       exposed-headers: "Authorization,Link,X-Total-Count"
+    #       allow-credentials: true
+    #       max-age: 1800
 endpoints:
   all:
     path: /management
     sensitive: false
-
+  health:
+    details-visible: AUTHENTICATED
 jmx:
   register-endpoints: false
 
-spring:
-  data:
-    jpa:
-      repositories:
-        bootstrap-mode: deferred
-  jpa:
-    open-in-view: false
+jpa:
+  default:
     properties:
-      hibernate.jdbc.time_zone: UTC
-    hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-  messages:
-    basename: i18n/messages
-  main:
-    allow-bean-definition-overriding: true
-  mvc:
-    favicon:
-      enabled: false
-  task:
-    execution:
-      thread-name-prefix: jhipster-sample-application-task-
-      pool:
-        core-size: 2
-        max-size: 50
-        queue-capacity: 10000
-    scheduling:
-      thread-name-prefix: jhipster-sample-application-scheduling-
-      pool:
-        size: 2
-  thymeleaf:
-    mode: HTML
-
-server:
-  servlet:
-    session:
-      cookie:
-        http-only: true
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        ddl-auto: none
 
 # Properties to be exposed on the /info management endpoint
 info:
@@ -177,14 +133,6 @@ info:
 jhipster:
   clientApp:
     name: 'jhipsterSampleApplicationApp'
-  # By default CORS is disabled. Uncomment to enable.
-  # cors:
-  #     allowed-origins: "*"
-  #     allowed-methods: "*"
-  #     allowed-headers: "*"
-  #     exposed-headers: "Authorization,Link,X-Total-Count"
-  #     allow-credentials: true
-  #     max-age: 1800
   mail:
     from: jhipsterSampleApplication@localhost
   swagger:

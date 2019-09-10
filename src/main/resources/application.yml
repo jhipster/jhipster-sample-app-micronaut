@@ -118,6 +118,7 @@ jpa:
         jdbc:
           time_zone: UTC
         ddl-auto: none
+        physical_naming_strategy: io.github.jhipster.sample.config.SnakeCasePhysicalNamingStrategy
 
 # Properties to be exposed on the /info management endpoint
 info:

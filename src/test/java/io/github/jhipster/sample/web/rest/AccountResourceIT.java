@@ -19,11 +19,13 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.security.authentication.providers.PasswordEncoder;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -66,10 +69,11 @@ public class AccountResourceIT {
 
     @Test
     public void testNonAuthenticatedUser() throws Exception {
-        HttpResponse<String> response = client.exchange(HttpRequest.GET("/api/authenticate").accept(MediaType.APPLICATION_JSON_TYPE), String.class).blockingFirst();
+        HttpClientResponseException ex = Assertions.catchThrowableOfType(() -> {
+                client.exchange(HttpRequest.GET("/api/authenticate").accept(MediaType.APPLICATION_JSON_TYPE), String.class).blockingFirst();
+            }, HttpClientResponseException.class);
 
-        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
-        assertThat(response.body()).isEqualTo("");
+        assertThat(ex.getResponse().status().getCode()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
     }
 /*
     @Test

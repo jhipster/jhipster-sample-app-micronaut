@@ -141,28 +141,12 @@ public class UserDTO {
         this.langKey = langKey;
     }
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public Instant getCreatedDate() {
         return createdDate;
     }
 
     public void setCreatedDate(Instant createdDate) {
         this.createdDate = createdDate;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
     }
 
     public Instant getLastModifiedDate() {

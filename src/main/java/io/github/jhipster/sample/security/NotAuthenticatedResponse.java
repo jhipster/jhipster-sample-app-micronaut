@@ -1,10 +1,11 @@
 package io.github.jhipster.sample.security;
 
+import io.micronaut.security.authentication.AuthenticationFailed;
 import io.micronaut.security.authentication.AuthenticationResponse;
 
 import java.util.Optional;
 
-public class NotAuthenticatedResponse implements AuthenticationResponse {
+public class NotAuthenticatedResponse extends AuthenticationFailed {
 
     private final String message;
 

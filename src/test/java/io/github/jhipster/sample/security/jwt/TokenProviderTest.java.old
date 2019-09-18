@@ -5,28 +5,27 @@ import io.github.jhipster.sample.security.AuthoritiesConstants;
 import java.security.Key;
 import java.util.*;
 
+import io.micronaut.security.token.jwt.validator.JwtTokenValidator;
+import io.micronaut.security.token.validator.TokenValidator;
+import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import io.github.jhipster.config.JHipsterProperties;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+
+import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@MicronautTest
 public class TokenProviderTest {
 
     private static final long ONE_MINUTE = 60000;
 
     private Key key;
     private TokenProvider tokenProvider;
+
+    @Inject TokenValidator tokenValidator;
 
     @BeforeEach
     public void setup() {

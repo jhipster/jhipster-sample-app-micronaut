@@ -8,10 +8,10 @@ import io.micronaut.http.server.exceptions.ExceptionHandler;
 import javax.inject.Singleton;
 
 @Singleton
-public class BadRequestAlertExceptionHandler implements ExceptionHandler<BadRequestAlertException, HttpResponse> {
+public class BadRequestAlertExceptionHandler extends ProblemHandler implements ExceptionHandler<BadRequestAlertException, HttpResponse> {
 
     @Override
     public HttpResponse handle(HttpRequest request, BadRequestAlertException exception) {
-        return HttpResponse.badRequest(exception);
+        return create(exception, request, exception);
     }
 }

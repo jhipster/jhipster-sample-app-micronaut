@@ -8,6 +8,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,62 +80,56 @@ public class BankAccountResourceIT {
         assertEquals(testBankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
     }
 
-//    @Test
-//    @Transactional
-//    public void createBankAccountWithExistingId() throws Exception {
-//        int databaseSizeBeforeCreate = bankAccountRepository.findAll().size();
-//
-//        // Create the BankAccount with an existing ID
-//        bankAccount.setId(1L);
-//
-//        // An entity with an existing ID cannot be created, so this API call must fail
-//        restBankAccountMockMvc.perform(post("/api/bank-accounts")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(bankAccount)))
-//            .andExpect(status().isBadRequest());
-//
-//        // Validate the BankAccount in the database
-//        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
-//        assertThat(bankAccountList).hasSize(databaseSizeBeforeCreate);
-//    }
-//
-//
-//    @Test
-//    @Transactional
-//    public void checkNameIsRequired() throws Exception {
-//        int databaseSizeBeforeTest = bankAccountRepository.findAll().size();
-//        // set the field null
-//        bankAccount.setName(null);
-//
-//        // Create the BankAccount, which fails.
-//
-//        restBankAccountMockMvc.perform(post("/api/bank-accounts")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(bankAccount)))
-//            .andExpect(status().isBadRequest());
-//
-//        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
-//        assertThat(bankAccountList).hasSize(databaseSizeBeforeTest);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void checkBalanceIsRequired() throws Exception {
-//        int databaseSizeBeforeTest = bankAccountRepository.findAll().size();
-//        // set the field null
-//        bankAccount.setBalance(null);
-//
-//        // Create the BankAccount, which fails.
-//
-//        restBankAccountMockMvc.perform(post("/api/bank-accounts")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(bankAccount)))
-//            .andExpect(status().isBadRequest());
-//
-//        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
-//        assertThat(bankAccountList).hasSize(databaseSizeBeforeTest);
-//    }
-//
+    @Test
+    public void createBankAccountWithExistingId() throws Exception {
+       long databaseSizeBeforeCreate = bankAccountRepository.count();
+
+        // Create the BankAccount with an existing ID
+        bankAccount.setId(1L);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class)
+            .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        // Validate the BankAccount in the database
+        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
+        assertThat(bankAccountList.size()).isEqualTo(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    public void checkNameIsRequired() throws Exception {
+        long databaseSizeBeforeCreate = bankAccountRepository.count();
+        // set the field null
+        bankAccount.setName(null);
+
+        // Create the BankAccount, which fails.
+        HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class)
+            .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
+        assertThat(bankAccountList.size()).isEqualTo(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    public void checkBalanceIsRequired() throws Exception {
+        long databaseSizeBeforeCreate = bankAccountRepository.count();
+        // set the field null
+        bankAccount.setBalance(null);
+
+        // Create the BankAccount, which fails.
+        HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class)
+            .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
+        assertThat(bankAccountList.size()).isEqualTo(databaseSizeBeforeCreate);
+    }
+
 //    @Test
 //    @Transactional
 //    public void getAllBankAccounts() throws Exception {

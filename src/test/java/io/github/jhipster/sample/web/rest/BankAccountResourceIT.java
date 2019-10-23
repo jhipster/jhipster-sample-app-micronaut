@@ -1,7 +1,6 @@
 package io.github.jhipster.sample.web.rest;
 
 import io.github.jhipster.sample.domain.BankAccount;
-import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.BankAccountRepository;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.core.type.Argument;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;

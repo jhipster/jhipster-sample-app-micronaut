@@ -12,6 +12,7 @@ import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -62,6 +63,11 @@ public class BankAccountResourceIT {
     @BeforeEach
     public void initTest() {
         bankAccount = createEntity();
+    }
+
+    @AfterEach
+    public void cleanUpTest() {
+        bankAccountRepository.deleteAll();
     }
 
     @Test
@@ -149,10 +155,10 @@ public class BankAccountResourceIT {
         bankAccountRepository.saveAndFlush(bankAccount);
 
         // Get the bankAccount
-        BankAccount bankAccount = client.retrieve(HttpRequest.GET("/api/bank-accounts/" + this.bankAccount.getId().intValue()), BankAccount.class).blockingFirst();
+        BankAccount bankAccountX = client.retrieve(HttpRequest.GET("/api/bank-accounts/" + bankAccount.getId()), BankAccount.class).blockingFirst();
 
-        assertThat(bankAccount.getName()).isEqualTo(DEFAULT_NAME);
-        assertEquals(bankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
+        assertThat(bankAccountX.getName()).isEqualTo(DEFAULT_NAME);
+        assertEquals(bankAccountX.getBalance().compareTo(DEFAULT_BALANCE), 0);
     }
 //
 //    @Test
@@ -207,24 +213,22 @@ public class BankAccountResourceIT {
         assertThat(bankAccountList).hasSize(databaseSizeBeforeUpdate);
     }
 //
-//    @Test
-//    @Transactional
-//    public void deleteBankAccount() throws Exception {
-//        // Initialize the database
-//        bankAccountRepository.saveAndFlush(bankAccount);
-//
-//        int databaseSizeBeforeDelete = bankAccountRepository.findAll().size();
-//
-//        // Delete the bankAccount
-//        restBankAccountMockMvc.perform(delete("/api/bank-accounts/{id}", bankAccount.getId())
-//            .accept(TestUtil.APPLICATION_JSON_UTF8))
-//            .andExpect(status().isNoContent());
-//
-//        // Validate the database is empty
-//        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
-//        assertThat(bankAccountList).hasSize(databaseSizeBeforeDelete - 1);
-//    }
-//
+    @Test
+    public void deleteBankAccount() throws Exception {
+        // Initialize the database
+        bankAccountRepository.saveAndFlush(bankAccount);
+
+        int databaseSizeBeforeDelete = bankAccountRepository.findAll().size();
+
+        // Delete the bankAccount
+        HttpResponse<BankAccount> response = client.exchange(HttpRequest.DELETE("/api/bank-accounts/"+ bankAccount.getId()), BankAccount.class)
+            .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        // Validate the database is empty
+        List<BankAccount> bankAccountList = bankAccountRepository.findAll();
+        assertThat(bankAccountList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
     @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(BankAccount.class);

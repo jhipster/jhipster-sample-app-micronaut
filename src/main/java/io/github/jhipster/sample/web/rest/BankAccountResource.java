@@ -4,7 +4,6 @@ import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.repository.BankAccountRepository;
 import io.github.jhipster.sample.util.HeaderUtil;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
-
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import org.slf4j.Logger;
@@ -14,8 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -71,7 +68,7 @@ public class BankAccountResource {
         if (bankAccount.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        BankAccount result = bankAccountRepository.save(bankAccount);
+        BankAccount result = bankAccountRepository.mergeAndSave(bankAccount);
         return HttpResponse.ok(result)
             .headers(headers -> HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, bankAccount.getId().toString()));
     }

@@ -69,7 +69,7 @@ public class BankAccountResourceIT {
     }
 
     @Test
-    public void createBankAccount() throws Exception {
+    public void createBankAccount() {
         long databaseSizeBeforeCreate = bankAccountRepository.count();
 
         // Create the BankAccount
@@ -86,7 +86,7 @@ public class BankAccountResourceIT {
     }
 
     @Test
-    public void createBankAccountWithExistingId() throws Exception {
+    public void createBankAccountWithExistingId() {
        long databaseSizeBeforeCreate = bankAccountRepository.count();
 
         // Create the BankAccount with an existing ID
@@ -104,7 +104,7 @@ public class BankAccountResourceIT {
     }
 
     @Test
-    public void checkNameIsRequired() throws Exception {
+    public void checkNameIsRequired() {
         long databaseSizeBeforeCreate = bankAccountRepository.count();
         // set the field null
         bankAccount.setName(null);
@@ -120,7 +120,7 @@ public class BankAccountResourceIT {
     }
 
     @Test
-    public void checkBalanceIsRequired() throws Exception {
+    public void checkBalanceIsRequired() {
         long databaseSizeBeforeCreate = bankAccountRepository.count();
         // set the field null
         bankAccount.setBalance(null);
@@ -136,7 +136,7 @@ public class BankAccountResourceIT {
     }
 
     @Test
-    public void getAllBankAccounts() throws Exception {
+    public void getAllBankAccounts() {
         // Initialize the database
         bankAccountRepository.saveAndFlush(bankAccount);
 
@@ -148,27 +148,27 @@ public class BankAccountResourceIT {
     }
 
     @Test
-    public void getBankAccount() throws Exception {
+    public void getBankAccount() {
         // Initialize the database
         bankAccountRepository.saveAndFlush(bankAccount);
 
         // Get the bankAccount
-        BankAccount bankAccountX = client.retrieve(HttpRequest.GET("/api/bank-accounts/" + bankAccount.getId()), BankAccount.class).blockingFirst();
+        BankAccount bankAccount = client.retrieve(HttpRequest.GET("/api/bank-accounts/" + this.bankAccount.getId()), BankAccount.class).blockingFirst();
 
-        assertThat(bankAccountX.getName()).isEqualTo(DEFAULT_NAME);
-        assertEquals(bankAccountX.getBalance().compareTo(DEFAULT_BALANCE), 0);
+        assertThat(bankAccount.getName()).isEqualTo(DEFAULT_NAME);
+        assertEquals(bankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
     }
-//
-//    @Test
-//    @Transactional
-//    public void getNonExistingBankAccount() throws Exception {
-//        // Get the bankAccount
-//        restBankAccountMockMvc.perform(get("/api/bank-accounts/{id}", Long.MAX_VALUE))
-//            .andExpect(status().isNotFound());
-//    }
 
     @Test
-    public void updateBankAccount() throws Exception {
+    public void getNonExistingBankAccount() {
+        HttpResponse<BankAccount> response = client.exchange(HttpRequest.GET("/api/bank-accounts/"+ Long.MAX_VALUE), BankAccount.class)
+            .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
+    }
+
+    @Test
+    public void updateBankAccount() {
         // Initialize the database
         bankAccountRepository.saveAndFlush(bankAccount);
 
@@ -182,22 +182,17 @@ public class BankAccountResourceIT {
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.PUT("/api/bank-accounts", updatedBankAccount), BankAccount.class).onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
-//
-//        restBankAccountMockMvc.perform(put("/api/bank-accounts")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(updatedBankAccount)))
-//            .andExpect(status().isOk());
 
         // Validate the BankAccount in the database
         List<BankAccount> bankAccountList = bankAccountRepository.findAll();
         assertThat(bankAccountList).hasSize(databaseSizeBeforeUpdate);
         BankAccount testBankAccount = bankAccountList.get(bankAccountList.size() - 1);
         assertThat(testBankAccount.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testBankAccount.getBalance()).isEqualTo(UPDATED_BALANCE);
+        assertEquals(testBankAccount.getBalance().compareTo(UPDATED_BALANCE), 0);
     }
 
     @Test
-    public void updateNonExistingBankAccount() throws Exception {
+    public void updateNonExistingBankAccount() {
         int databaseSizeBeforeUpdate = bankAccountRepository.findAll().size();
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
@@ -210,9 +205,9 @@ public class BankAccountResourceIT {
         List<BankAccount> bankAccountList = bankAccountRepository.findAll();
         assertThat(bankAccountList).hasSize(databaseSizeBeforeUpdate);
     }
-//
+
     @Test
-    public void deleteBankAccount() throws Exception {
+    public void deleteBankAccount() {
         // Initialize the database
         bankAccountRepository.saveAndFlush(bankAccount);
 

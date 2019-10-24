@@ -1,20 +1,20 @@
 package io.github.jhipster.sample.web.rest;
 
-import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.Operation;
 import io.github.jhipster.sample.repository.OperationRepository;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -79,10 +79,6 @@ public class OperationResourceIT {
         int databaseSizeBeforeCreate = operationRepository.findAll().size();
 
         // Create the Operation
-//        restOperationMockMvc.perform(post("/api/operations")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(operation)))
-//            .andExpect(status().isCreated());
         HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class).blockingFirst();
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.CREATED.getCode());
@@ -96,78 +92,68 @@ public class OperationResourceIT {
         assertEquals(testOperation.getAmount().compareTo(DEFAULT_AMOUNT), 0);
     }
 
-//    @Test
-//    @Transactional
-//    public void createOperationWithExistingId() throws Exception {
-//        int databaseSizeBeforeCreate = operationRepository.findAll().size();
-//
-//        // Create the Operation with an existing ID
-//        operation.setId(1L);
-//
-//        // An entity with an existing ID cannot be created, so this API call must fail
-//        restOperationMockMvc.perform(post("/api/operations")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(operation)))
-//            .andExpect(status().isBadRequest());
-//
-//        // Validate the Operation in the database
-//        List<Operation> operationList = operationRepository.findAll();
-//        assertThat(operationList).hasSize(databaseSizeBeforeCreate);
-//    }
-//
-//
-//    @Test
-//    @Transactional
-//    public void checkDateIsRequired() throws Exception {
-//        int databaseSizeBeforeTest = operationRepository.findAll().size();
-//        // set the field null
-//        operation.setDate(null);
-//
-//        // Create the Operation, which fails.
-//
-//        restOperationMockMvc.perform(post("/api/operations")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(operation)))
-//            .andExpect(status().isBadRequest());
-//
-//        List<Operation> operationList = operationRepository.findAll();
-//        assertThat(operationList).hasSize(databaseSizeBeforeTest);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void checkAmountIsRequired() throws Exception {
-//        int databaseSizeBeforeTest = operationRepository.findAll().size();
-//        // set the field null
-//        operation.setAmount(null);
-//
-//        // Create the Operation, which fails.
-//
-//        restOperationMockMvc.perform(post("/api/operations")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(operation)))
-//            .andExpect(status().isBadRequest());
-//
-//        List<Operation> operationList = operationRepository.findAll();
-//        assertThat(operationList).hasSize(databaseSizeBeforeTest);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void getAllOperations() throws Exception {
-//        // Initialize the database
-//        operationRepository.saveAndFlush(operation);
-//
-//        // Get all the operationList
-//        restOperationMockMvc.perform(get("/api/operations?sort=id,desc"))
-//            .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//            .andExpect(jsonPath("$.[*].id").value(hasItem(operation.getId().intValue())))
-//            .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())))
-//            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-//            .andExpect(jsonPath("$.[*].amount").value(hasItem(DEFAULT_AMOUNT.intValue())));
-//    }
-//
+    @Test
+    public void createOperationWithExistingId() throws Exception {
+        int databaseSizeBeforeCreate = operationRepository.findAll().size();
+
+        // Create the Operation with an existing ID
+        operation.setId(1L);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class)
+            .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        // Validate the Operation in the database
+        List<Operation> operationList = operationRepository.findAll();
+        assertThat(operationList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    public void checkDateIsRequired() throws Exception {
+        int databaseSizeBeforeTest = operationRepository.findAll().size();
+        // set the field null
+        operation.setDate(null);
+
+        // Create the Operation, which fails.
+        HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class)
+            .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        List<Operation> operationList = operationRepository.findAll();
+        assertThat(operationList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    public void checkAmountIsRequired() throws Exception {
+        int databaseSizeBeforeTest = operationRepository.findAll().size();
+        // set the field null
+        operation.setAmount(null);
+
+        // Create the Operation, which fails.
+        HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class)
+            .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        List<Operation> operationList = operationRepository.findAll();
+        assertThat(operationList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    public void getAllOperations() throws Exception {
+        // Initialize the database
+        operationRepository.saveAndFlush(operation);
+
+        // Get all the operationList
+        List<Operation> operations = client.retrieve(HttpRequest.GET("/api/operations?eagerload=true"), Argument.listOf(Operation.class)).blockingFirst();
+
+        assertThat(operations.get(0).getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertEquals(operations.get(0).getAmount().compareTo(DEFAULT_AMOUNT), 0);
+    }
+
 //    @Test
 //    @Transactional
 //    public void getOperation() throws Exception {
@@ -258,18 +244,17 @@ public class OperationResourceIT {
 //        assertThat(operationList).hasSize(databaseSizeBeforeDelete - 1);
 //    }
 //
-//    @Test
-//    @Transactional
-//    public void equalsVerifier() throws Exception {
-//        TestUtil.equalsVerifier(Operation.class);
-//        Operation operation1 = new Operation();
-//        operation1.setId(1L);
-//        Operation operation2 = new Operation();
-//        operation2.setId(operation1.getId());
-//        assertThat(operation1).isEqualTo(operation2);
-//        operation2.setId(2L);
-//        assertThat(operation1).isNotEqualTo(operation2);
-//        operation1.setId(null);
-//        assertThat(operation1).isNotEqualTo(operation2);
-//    }
+    @Test
+    public void equalsVerifier() throws Exception {
+        TestUtil.equalsVerifier(Operation.class);
+        Operation operation1 = new Operation();
+        operation1.setId(1L);
+        Operation operation2 = new Operation();
+        operation2.setId(operation1.getId());
+        assertThat(operation1).isEqualTo(operation2);
+        operation2.setId(2L);
+        assertThat(operation1).isNotEqualTo(operation2);
+        operation1.setId(null);
+        assertThat(operation1).isNotEqualTo(operation2);
+    }
 }

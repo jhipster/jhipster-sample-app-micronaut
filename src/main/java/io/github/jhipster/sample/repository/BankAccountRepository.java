@@ -22,13 +22,13 @@ public abstract class BankAccountRepository implements JpaRepository<BankAccount
     @Query("select bankAccount from BankAccount bankAccount where bankAccount.user.login = :username")
     abstract List<BankAccount> findByUserIsCurrentUser(String username);
 
+    public BankAccountRepository(@CurrentSession EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     @Transactional
     public BankAccount mergeAndSave(BankAccount bankAccount) {
         bankAccount = entityManager.merge(bankAccount);
         return save(bankAccount);
-    }
-
-    public BankAccountRepository(@CurrentSession EntityManager entityManager) {
-        this.entityManager = entityManager;
     }
 }

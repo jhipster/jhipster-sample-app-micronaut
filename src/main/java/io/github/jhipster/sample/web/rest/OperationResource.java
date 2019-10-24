@@ -80,7 +80,7 @@ public class OperationResource {
         if (operation.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Operation result = operationRepository.save(operation);
+        Operation result = operationRepository.mergeAndSave(operation);
 
         return HttpResponse.ok(result).headers(headers ->
             HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, operation.getId().toString()));

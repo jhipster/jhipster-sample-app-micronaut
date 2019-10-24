@@ -1,5 +1,6 @@
 package io.github.jhipster.sample.web.rest;
 
+import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.Operation;
 import io.github.jhipster.sample.repository.OperationRepository;
 import io.micronaut.context.annotation.Property;
@@ -154,59 +155,52 @@ public class OperationResourceIT {
         assertEquals(operations.get(0).getAmount().compareTo(DEFAULT_AMOUNT), 0);
     }
 
-//    @Test
-//    @Transactional
-//    public void getOperation() throws Exception {
-//        // Initialize the database
-//        operationRepository.saveAndFlush(operation);
-//
-//        // Get the operation
-//        restOperationMockMvc.perform(get("/api/operations/{id}", operation.getId()))
-//            .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//            .andExpect(jsonPath("$.id").value(operation.getId().intValue()))
-//            .andExpect(jsonPath("$.date").value(DEFAULT_DATE.toString()))
-//            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-//            .andExpect(jsonPath("$.amount").value(DEFAULT_AMOUNT.intValue()));
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void getNonExistingOperation() throws Exception {
-//        // Get the operation
-//        restOperationMockMvc.perform(get("/api/operations/{id}", Long.MAX_VALUE))
-//            .andExpect(status().isNotFound());
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void updateOperation() throws Exception {
-//        // Initialize the database
-//        operationRepository.saveAndFlush(operation);
-//
-//        int databaseSizeBeforeUpdate = operationRepository.findAll().size();
-//
-//        // Update the operation
-//        Operation updatedOperation = operationRepository.findById(operation.getId()).get();
-//        // Disconnect from session so that the updates on updatedOperation are not directly saved in db
-//        em.detach(updatedOperation);
-//        updatedOperation.setDate(UPDATED_DATE);
-//        updatedOperation.setDescription(UPDATED_DESCRIPTION);
-//        updatedOperation.setAmount(UPDATED_AMOUNT);
-//
-//        restOperationMockMvc.perform(put("/api/operations")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(updatedOperation)))
-//            .andExpect(status().isOk());
-//
-//        // Validate the Operation in the database
-//        List<Operation> operationList = operationRepository.findAll();
-//        assertThat(operationList).hasSize(databaseSizeBeforeUpdate);
-//        Operation testOperation = operationList.get(operationList.size() - 1);
-//        assertThat(testOperation.getDate()).isEqualTo(UPDATED_DATE);
-//        assertThat(testOperation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-//        assertThat(testOperation.getAmount()).isEqualTo(UPDATED_AMOUNT);
-//    }
+    @Test
+    public void getOperation() throws Exception {
+        // Initialize the database
+        operationRepository.saveAndFlush(operation);
+
+        // Get the operation
+        Operation operation = client.retrieve(HttpRequest.GET("/api/operations/" + this.operation.getId()), Operation.class).blockingFirst();
+
+        assertThat(operation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertEquals(operation.getAmount().compareTo(DEFAULT_AMOUNT), 0);
+    }
+
+    @Test
+    public void getNonExistingOperation() throws Exception {
+        // Get the operation
+        HttpResponse<Operation> response = client.exchange(HttpRequest.GET("/api/operations/"+ Long.MAX_VALUE), Operation.class)
+            .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
+    }
+
+    @Test
+    public void updateOperation() throws Exception {
+        // Initialize the database
+        operationRepository.saveAndFlush(operation);
+
+        int databaseSizeBeforeUpdate = operationRepository.findAll().size();
+
+        // Update the operation
+        Operation updatedOperation = operationRepository.findById(operation.getId()).get();
+        updatedOperation.setDate(UPDATED_DATE);
+        updatedOperation.setDescription(UPDATED_DESCRIPTION);
+        updatedOperation.setAmount(UPDATED_AMOUNT);
+
+        HttpResponse<Operation> response = client.exchange(HttpRequest.PUT("/api/operations", updatedOperation), Operation.class).onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+
+        // Validate the Operation in the database
+        List<Operation> operationList = operationRepository.findAll();
+        assertThat(operationList).hasSize(databaseSizeBeforeUpdate);
+        Operation testOperation = operationList.get(operationList.size() - 1);
+        assertThat(testOperation.getDate()).isEqualTo(UPDATED_DATE);
+        assertThat(testOperation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertEquals(testOperation.getAmount().compareTo(UPDATED_AMOUNT), 0);
+    }
 //
 //    @Test
 //    @Transactional

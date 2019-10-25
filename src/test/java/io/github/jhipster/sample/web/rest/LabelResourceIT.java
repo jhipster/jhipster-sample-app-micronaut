@@ -1,10 +1,15 @@
 package io.github.jhipster.sample.web.rest;
 
+import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.Label;
 import io.github.jhipster.sample.repository.LabelRepository;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,61 +63,56 @@ public class LabelResourceIT {
         labelRepository.deleteAll();
     }
 
-//    @Test
-//    @Transactional
-//    public void createLabel() throws Exception {
-//        int databaseSizeBeforeCreate = labelRepository.findAll().size();
-//
-//        // Create the Label
-//        restLabelMockMvc.perform(post("/api/labels")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(label)))
-//            .andExpect(status().isCreated());
-//
-//        // Validate the Label in the database
-//        List<Label> labelList = labelRepository.findAll();
-//        assertThat(labelList).hasSize(databaseSizeBeforeCreate + 1);
-//        Label testLabel = labelList.get(labelList.size() - 1);
-//        assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void createLabelWithExistingId() throws Exception {
-//        int databaseSizeBeforeCreate = labelRepository.findAll().size();
-//
-//        // Create the Label with an existing ID
-//        label.setId(1L);
-//
-//        // An entity with an existing ID cannot be created, so this API call must fail
-//        restLabelMockMvc.perform(post("/api/labels")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(label)))
-//            .andExpect(status().isBadRequest());
-//
-//        // Validate the Label in the database
-//        List<Label> labelList = labelRepository.findAll();
-//        assertThat(labelList).hasSize(databaseSizeBeforeCreate);
-//    }
-//
-//
-//    @Test
-//    @Transactional
-//    public void checkLabelIsRequired() throws Exception {
-//        int databaseSizeBeforeTest = labelRepository.findAll().size();
-//        // set the field null
-//        label.setLabel(null);
-//
-//        // Create the Label, which fails.
-//
-//        restLabelMockMvc.perform(post("/api/labels")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(label)))
-//            .andExpect(status().isBadRequest());
-//
-//        List<Label> labelList = labelRepository.findAll();
-//        assertThat(labelList).hasSize(databaseSizeBeforeTest);
-//    }
+    @Test
+    public void createLabel() throws Exception {
+        int databaseSizeBeforeCreate = labelRepository.findAll().size();
+
+        // Create the Label
+        HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.CREATED.getCode());
+
+        // Validate the Label in the database
+        List<Label> labelList = labelRepository.findAll();
+        assertThat(labelList).hasSize(databaseSizeBeforeCreate + 1);
+        Label testLabel = labelList.get(labelList.size() - 1);
+        assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
+    }
+
+    @Test
+    public void createLabelWithExistingId() throws Exception {
+        int databaseSizeBeforeCreate = labelRepository.findAll().size();
+
+        // Create the Label with an existing ID
+        label.setId(1L);
+
+        // An entity with an existing ID cannot be created, so this API call must fail
+        HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class)
+            .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        // Validate the Label in the database
+        List<Label> labelList = labelRepository.findAll();
+        assertThat(labelList).hasSize(databaseSizeBeforeCreate);
+    }
+
+
+    @Test
+    public void checkLabelIsRequired() throws Exception {
+        int databaseSizeBeforeTest = labelRepository.findAll().size();
+        // set the field null
+        label.setLabel(null);
+
+        // Create the Label, which fails.
+        HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class)
+            .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        List<Label> labelList = labelRepository.findAll();
+        assertThat(labelList).hasSize(databaseSizeBeforeTest);
+    }
 //
 //    @Test
 //    @Transactional

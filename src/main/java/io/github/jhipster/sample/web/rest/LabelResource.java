@@ -72,7 +72,7 @@ public class LabelResource {
         if (label.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Label result = labelRepository.save(label);
+        Label result = labelRepository.mergeAndSave(label);
         return HttpResponse.ok(result).headers(headers ->
             HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, label.getId().toString()));
     }

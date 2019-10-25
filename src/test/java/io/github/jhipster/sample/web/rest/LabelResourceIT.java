@@ -4,6 +4,7 @@ import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.Label;
 import io.github.jhipster.sample.repository.LabelRepository;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,104 +113,91 @@ public class LabelResourceIT {
         List<Label> labelList = labelRepository.findAll();
         assertThat(labelList).hasSize(databaseSizeBeforeTest);
     }
-//
-//    @Test
-//    @Transactional
-//    public void getAllLabels() throws Exception {
-//        // Initialize the database
-//        labelRepository.saveAndFlush(label);
-//
-//        // Get all the labelList
-//        restLabelMockMvc.perform(get("/api/labels?sort=id,desc"))
-//            .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//            .andExpect(jsonPath("$.[*].id").value(hasItem(label.getId().intValue())))
-//            .andExpect(jsonPath("$.[*].label").value(hasItem(DEFAULT_LABEL.toString())));
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void getLabel() throws Exception {
-//        // Initialize the database
-//        labelRepository.saveAndFlush(label);
-//
-//        // Get the label
-//        restLabelMockMvc.perform(get("/api/labels/{id}", label.getId()))
-//            .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-//            .andExpect(jsonPath("$.id").value(label.getId().intValue()))
-//            .andExpect(jsonPath("$.label").value(DEFAULT_LABEL.toString()));
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void getNonExistingLabel() throws Exception {
-//        // Get the label
-//        restLabelMockMvc.perform(get("/api/labels/{id}", Long.MAX_VALUE))
-//            .andExpect(status().isNotFound());
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void updateLabel() throws Exception {
-//        // Initialize the database
-//        labelRepository.saveAndFlush(label);
-//
-//        int databaseSizeBeforeUpdate = labelRepository.findAll().size();
-//
-//        // Update the label
-//        Label updatedLabel = labelRepository.findById(label.getId()).get();
-//        // Disconnect from session so that the updates on updatedLabel are not directly saved in db
-//        em.detach(updatedLabel);
-//        updatedLabel.setLabel(UPDATED_LABEL);
-//
-//        restLabelMockMvc.perform(put("/api/labels")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(updatedLabel)))
-//            .andExpect(status().isOk());
-//
-//        // Validate the Label in the database
-//        List<Label> labelList = labelRepository.findAll();
-//        assertThat(labelList).hasSize(databaseSizeBeforeUpdate);
-//        Label testLabel = labelList.get(labelList.size() - 1);
-//        assertThat(testLabel.getLabel()).isEqualTo(UPDATED_LABEL);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void updateNonExistingLabel() throws Exception {
-//        int databaseSizeBeforeUpdate = labelRepository.findAll().size();
-//
-//        // Create the Label
-//
-//        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-//        restLabelMockMvc.perform(put("/api/labels")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(label)))
-//            .andExpect(status().isBadRequest());
-//
-//        // Validate the Label in the database
-//        List<Label> labelList = labelRepository.findAll();
-//        assertThat(labelList).hasSize(databaseSizeBeforeUpdate);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void deleteLabel() throws Exception {
-//        // Initialize the database
-//        labelRepository.saveAndFlush(label);
-//
-//        int databaseSizeBeforeDelete = labelRepository.findAll().size();
-//
-//        // Delete the label
-//        restLabelMockMvc.perform(delete("/api/labels/{id}", label.getId())
-//            .accept(TestUtil.APPLICATION_JSON_UTF8))
-//            .andExpect(status().isNoContent());
-//
-//        // Validate the database is empty
-//        List<Label> labelList = labelRepository.findAll();
-//        assertThat(labelList).hasSize(databaseSizeBeforeDelete - 1);
-//    }
+
+    @Test
+    public void getAllLabels() throws Exception {
+        // Initialize the database
+        labelRepository.saveAndFlush(label);
+
+        // Get all the labelList
+        List<Label> labels = client.retrieve(HttpRequest.GET("/api/labels?sort=id,desc"), Argument.listOf(Label.class)).blockingFirst();
+
+        assertThat(labels.get(0).getLabel()).isEqualTo(DEFAULT_LABEL);
+    }
+
+    @Test
+    public void getLabel() throws Exception {
+        // Initialize the database
+        labelRepository.saveAndFlush(label);
+
+        // Get the label
+        Label label = client.retrieve(HttpRequest.GET("/api/labels/" + this.label.getId()), Label.class).blockingFirst();
+
+        assertThat(label.getLabel()).isEqualTo(DEFAULT_LABEL);
+    }
+
+    @Test
+    public void getNonExistingLabel() throws Exception {
+        // Get the label
+        HttpResponse<Label> response = client.exchange(HttpRequest.GET("/api/labels/"+ Long.MAX_VALUE), Label.class)
+            .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
+    }
+
+    @Test
+    public void updateLabel() throws Exception {
+        // Initialize the database
+        labelRepository.saveAndFlush(label);
+
+        int databaseSizeBeforeUpdate = labelRepository.findAll().size();
+
+        // Update the label
+        Label updatedLabel = labelRepository.findById(label.getId()).get();
+        // Disconnect from session so that the updates on updatedLabel are not directly saved in db
+        updatedLabel.setLabel(UPDATED_LABEL);
+
+        HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/labels", updatedLabel), Label.class).onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+
+        // Validate the Label in the database
+        List<Label> labelList = labelRepository.findAll();
+        assertThat(labelList).hasSize(databaseSizeBeforeUpdate);
+        Label testLabel = labelList.get(labelList.size() - 1);
+        assertThat(testLabel.getLabel()).isEqualTo(UPDATED_LABEL);
+    }
+
+    @Test
+    public void updateNonExistingLabel() throws Exception {
+        int databaseSizeBeforeUpdate = labelRepository.findAll().size();
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/bank-accounts", label), Label.class)
+            .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        // Validate the Label in the database
+        List<Label> labelList = labelRepository.findAll();
+        assertThat(labelList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    public void deleteLabel() throws Exception {
+        // Initialize the database
+        labelRepository.saveAndFlush(label);
+
+        int databaseSizeBeforeDelete = labelRepository.findAll().size();
+
+        // Delete the label
+        HttpResponse<Label> response = client.exchange(HttpRequest.DELETE("/api/labels/"+ label.getId()), Label.class)
+            .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        // Validate the database is empty
+        List<Label> labelList = labelRepository.findAll();
+        assertThat(labelList).hasSize(databaseSizeBeforeDelete - 1);
+    }
 
     @Test
     public void equalsVerifier() throws Exception {

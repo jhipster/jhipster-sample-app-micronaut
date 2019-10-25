@@ -1,9 +1,13 @@
 package io.github.jhipster.sample.service;
 
+import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.UserRepository;
+import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.service.util.RandomUtil;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
 import io.micronaut.test.annotation.MicronautTest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +18,7 @@ import org.junit.jupiter.api.TestInstance;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,80 +103,61 @@ public class UserServiceIT {
         Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
         assertThat(maybeUser).isNotPresent();
     }
-//
+
+    @Test
+    public void assertThatResetKeyMustBeValid() {
+        Instant daysAgo = Instant.now().minus(25, ChronoUnit.HOURS);
+        user.setActivated(true);
+        user.setResetDate(daysAgo);
+        user.setResetKey("1234");
+        userRepository.saveAndFlush(user);
+
+        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        assertThat(maybeUser).isNotPresent();
+        userRepository.delete(user);
+    }
+
+    @Test
+    public void assertThatUserCanResetPassword() {
+        String oldPassword = user.getPassword();
+        Instant daysAgo = Instant.now().minus(2, ChronoUnit.HOURS);
+        String resetKey = RandomUtil.generateResetKey();
+        user.setActivated(true);
+        user.setResetDate(daysAgo);
+        user.setResetKey(resetKey);
+        userRepository.saveAndFlush(user);
+
+        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        assertThat(maybeUser).isPresent();
+        assertThat(maybeUser.orElse(null).getResetDate()).isNull();
+        assertThat(maybeUser.orElse(null).getResetKey()).isNull();
+        assertThat(maybeUser.orElse(null).getPassword()).isNotEqualTo(oldPassword);
+
+        userRepository.delete(user);
+    }
+
+    @Test
+    public void assertThatAnonymousUserIsNotGet() {
+        user.setLogin(Constants.ANONYMOUS_USER);
+        if (!userRepository.findOneByLogin(Constants.ANONYMOUS_USER).isPresent()) {
+            userRepository.saveAndFlush(user);
+        }
+        final Pageable pageable = Pageable.from(0, (int) userRepository.count());
+        final Page<UserDTO> allManagedUsers = userService.getAllManagedUsers(pageable);
+        assertThat(allManagedUsers.getContent().stream()
+            .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
+            .isTrue();
+    }
+
+
 //    @Test
-//    @Transactional
-//    public void assertThatResetKeyMustBeValid() {
-//        Instant daysAgo = Instant.now().minus(25, ChronoUnit.HOURS);
-//        user.setActivated(true);
-//        user.setResetDate(daysAgo);
-//        user.setResetKey("1234");
-//        userRepository.saveAndFlush(user);
-//
-//        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
-//        assertThat(maybeUser).isNotPresent();
-//        userRepository.delete(user);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void assertThatUserCanResetPassword() {
-//        String oldPassword = user.getPassword();
-//        Instant daysAgo = Instant.now().minus(2, ChronoUnit.HOURS);
-//        String resetKey = RandomUtil.generateResetKey();
-//        user.setActivated(true);
-//        user.setResetDate(daysAgo);
-//        user.setResetKey(resetKey);
-//        userRepository.saveAndFlush(user);
-//
-//        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
-//        assertThat(maybeUser).isPresent();
-//        assertThat(maybeUser.orElse(null).getResetDate()).isNull();
-//        assertThat(maybeUser.orElse(null).getResetKey()).isNull();
-//        assertThat(maybeUser.orElse(null).getPassword()).isNotEqualTo(oldPassword);
-//
-//        userRepository.delete(user);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void testFindNotActivatedUsersByCreationDateBefore() {
-//        Instant now = Instant.now();
-//        when(dateTimeProvider.getNow()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
-//        user.setActivated(false);
-//        User dbUser = userRepository.saveAndFlush(user);
-//        dbUser.setCreatedDate(now.minus(4, ChronoUnit.DAYS));
-//        userRepository.saveAndFlush(user);
-//        List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
-//        assertThat(users).isNotEmpty();
-//        userService.removeNotActivatedUsers();
-//        users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
-//        assertThat(users).isEmpty();
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void assertThatAnonymousUserIsNotGet() {
-//        user.setLogin(Constants.ANONYMOUS_USER);
-//        if (!userRepository.findOneByLogin(Constants.ANONYMOUS_USER).isPresent()) {
-//            userRepository.saveAndFlush(user);
-//        }
-//        final PageRequest pageable = PageRequest.of(0, (int) userRepository.count());
-//        final Page<UserDTO> allManagedUsers = userService.getAllManagedUsers(pageable);
-//        assertThat(allManagedUsers.getContent().stream()
-//            .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
-//            .isTrue();
-//    }
-//
-//
-//    @Test
-//    @Transactional
 //    public void testRemoveNotActivatedUsers() {
 //        // custom "now" for audit to use as creation date
-//        when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
+//        //when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
 //
 //        user.setActivated(false);
 //        userRepository.saveAndFlush(user);
+//        user.setCreatedDate(Instant.now().minus(30, ChronoUnit.DAYS));
 //
 //        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
 //        userService.removeNotActivatedUsers();

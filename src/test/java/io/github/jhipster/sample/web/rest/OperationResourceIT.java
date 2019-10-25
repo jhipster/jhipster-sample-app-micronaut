@@ -201,43 +201,38 @@ public class OperationResourceIT {
         assertThat(testOperation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertEquals(testOperation.getAmount().compareTo(UPDATED_AMOUNT), 0);
     }
-//
-//    @Test
-//    @Transactional
-//    public void updateNonExistingOperation() throws Exception {
-//        int databaseSizeBeforeUpdate = operationRepository.findAll().size();
-//
-//        // Create the Operation
-//
-//        // If the entity doesn't have an ID, it will throw BadRequestAlertException
-//        restOperationMockMvc.perform(put("/api/operations")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(operation)))
-//            .andExpect(status().isBadRequest());
-//
-//        // Validate the Operation in the database
-//        List<Operation> operationList = operationRepository.findAll();
-//        assertThat(operationList).hasSize(databaseSizeBeforeUpdate);
-//    }
-//
-//    @Test
-//    @Transactional
-//    public void deleteOperation() throws Exception {
-//        // Initialize the database
-//        operationRepository.saveAndFlush(operation);
-//
-//        int databaseSizeBeforeDelete = operationRepository.findAll().size();
-//
-//        // Delete the operation
-//        restOperationMockMvc.perform(delete("/api/operations/{id}", operation.getId())
-//            .accept(TestUtil.APPLICATION_JSON_UTF8))
-//            .andExpect(status().isNoContent());
-//
-//        // Validate the database is empty
-//        List<Operation> operationList = operationRepository.findAll();
-//        assertThat(operationList).hasSize(databaseSizeBeforeDelete - 1);
-//    }
-//
+
+    @Test
+    public void updateNonExistingOperation() throws Exception {
+        int databaseSizeBeforeUpdate = operationRepository.findAll().size();
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        HttpResponse<Operation> response = client.exchange(HttpRequest.PUT("/api/operations", operation), Operation.class)
+            .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+
+        // Validate the Operation in the database
+        List<Operation> operationList = operationRepository.findAll();
+        assertThat(operationList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    public void deleteOperation() throws Exception {
+        // Initialize the database
+        operationRepository.saveAndFlush(operation);
+
+        int databaseSizeBeforeDelete = operationRepository.findAll().size();
+
+        // Delete the operation
+        HttpResponse<Operation> response = client.exchange(HttpRequest.DELETE("/api/operations/"+ operation.getId()), Operation.class)
+            .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        // Validate the database is empty
+        List<Operation> operationList = operationRepository.findAll();
+        assertThat(operationList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
     @Test
     public void equalsVerifier() throws Exception {
         TestUtil.equalsVerifier(Operation.class);

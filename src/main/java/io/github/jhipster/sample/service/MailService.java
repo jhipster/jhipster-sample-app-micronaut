@@ -83,7 +83,7 @@ public class MailService {
         StringWriter writer = new StringWriter();
         viewsRenderer.render(templateName, context, writer);
         String content = writer.toString();
-        String subject = messageSource.getMessage(titleKey, MessageSource.MessageContext.of(locale)).orElse(null);
+        String subject = "Hello"; //messageSource.getMessage(titleKey, MessageSource.MessageContext.of(locale)).orElse(null);
         sendEmail(user.getEmail(), subject, content, false, true);
 
     }

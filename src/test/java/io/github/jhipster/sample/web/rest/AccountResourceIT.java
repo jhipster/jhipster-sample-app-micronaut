@@ -3,16 +3,13 @@ package io.github.jhipster.sample.web.rest;
 import io.github.jhipster.sample.JhipsterSampleApplicationApp;
 import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.Authority;
-import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.AuthorityRepository;
 import io.github.jhipster.sample.repository.UserRepository;
 import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.MailService;
 import io.github.jhipster.sample.service.UserService;
-import io.github.jhipster.sample.service.dto.PasswordChangeDTO;
 import io.github.jhipster.sample.service.dto.UserDTO;
-import io.github.jhipster.sample.web.rest.vm.KeyAndPasswordVM;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.http.HttpRequest;
@@ -25,19 +22,18 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.security.authentication.providers.PasswordEncoder;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
-import org.apache.commons.lang3.RandomStringUtils;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -76,7 +72,7 @@ public class AccountResourceIT {
                 client.exchange(HttpRequest.GET("/api/authenticate").accept(MediaType.APPLICATION_JSON_TYPE), String.class).blockingFirst();
             }, HttpClientResponseException.class);
 
-        assertThat(ex.getResponse().status().getCode()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(ex.getResponse().status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
 /*
     @Test
@@ -129,7 +125,7 @@ public class AccountResourceIT {
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getCode());
     }
 
-        /*
+
     @Test
     @Transactional
     public void testRegisterValid() throws Exception {
@@ -144,14 +140,11 @@ public class AccountResourceIT {
         validUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
         assertThat(userRepository.findOneByLogin("test-register-valid").isPresent()).isFalse();
 
-        restMvc.perform(
-            post("/api/register")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(validUser)))
-            .andExpect(status().isCreated());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/register", validUser), String.class).blockingFirst();
 
-        assertThat(userRepository.findOneByLogin("test-register-valid").isPresent()).isTrue();
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.CREATED.getCode());
     }
+
 
     @Test
     @Transactional
@@ -167,16 +160,16 @@ public class AccountResourceIT {
         invalidUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         invalidUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
-        restUserMockMvc.perform(
-            post("/api/register")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(invalidUser)))
-            .andExpect(status().isBadRequest());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/register", invalidUser), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();;
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
 
         Optional<User> user = userRepository.findOneByEmailIgnoreCase("funky@example.com");
         assertThat(user.isPresent()).isFalse();
     }
 
+       /*
     @Test
     @Transactional
     public void testRegisterInvalidEmail() throws Exception {

@@ -3,6 +3,7 @@ package io.github.jhipster.sample.web.rest;
 import io.github.jhipster.sample.JhipsterSampleApplicationApp;
 import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.Authority;
+import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.AuthorityRepository;
 import io.github.jhipster.sample.repository.UserRepository;
@@ -13,6 +14,7 @@ import io.github.jhipster.sample.service.dto.PasswordChangeDTO;
 import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.web.rest.vm.KeyAndPasswordVM;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
+import io.micronaut.context.annotation.Property;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -43,6 +45,7 @@ import static org.mockito.Mockito.*;
  * Integration tests for the {@link AccountResource} REST controller.
  */
 @MicronautTest(application = JhipsterSampleApplicationApp.class)
+@Property(name = "micronaut.security.enabled", value = "false")
 public class AccountResourceIT {
 
     @Inject UserRepository userRepository;
@@ -86,7 +89,7 @@ public class AccountResourceIT {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().string("test"));
-    }
+    } */
 
     @Test
     public void testGetExistingAccount() throws Exception {
@@ -105,28 +108,28 @@ public class AccountResourceIT {
         user.setAuthorities(authorities);
         when(userService.getUserWithAuthorities()).thenReturn(Optional.of(user));
 
-        restUserMockMvc.perform(get("/api/account")
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.login").value("test"))
-            .andExpect(jsonPath("$.firstName").value("john"))
-            .andExpect(jsonPath("$.lastName").value("doe"))
-            .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
-            .andExpect(jsonPath("$.imageUrl").value("http://placehold.it/50x50"))
-            .andExpect(jsonPath("$.langKey").value("en"))
-            .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.ADMIN));
+        UserDTO userDTO = client.retrieve(HttpRequest.GET("/api/account"), UserDTO.class).blockingFirst();
+
+        assertThat(userDTO.getLogin()).isEqualTo("test");
+        assertThat(userDTO.getFirstName()).isEqualTo("john");
+        assertThat(userDTO.getLastName()).isEqualTo("doe");
+        assertThat(userDTO.getEmail()).isEqualTo("john.doe@jhipster.com");
+        assertThat(userDTO.getImageUrl()).isEqualTo("http://placehold.it/50x50");
+        assertThat(userDTO.getAuthorities().toString()).isEqualTo("[ROLE_ADMIN]");
     }
+
 
     @Test
     public void testGetUnknownAccount() throws Exception {
-        when(mockUserService.getUserWithAuthorities()).thenReturn(Optional.empty());
+        when(userService.getUserWithAuthorities()).thenReturn(Optional.empty());
 
-        restUserMockMvc.perform(get("/api/account")
-            .accept(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(status().isInternalServerError());
+        HttpResponse<String> response = client.exchange(HttpRequest.GET("/api/account"), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getCode());
     }
 
+        /*
     @Test
     @Transactional
     public void testRegisterValid() throws Exception {

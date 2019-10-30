@@ -6,6 +6,7 @@ import io.github.jhipster.sample.repository.UserRepository;
 import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.service.util.RandomUtil;
+import io.github.jhipster.sample.web.rest.errors.EmailAlreadyUsedException;
 import io.github.jhipster.sample.web.rest.errors.LoginAlreadyUsedException;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.context.annotation.Property;
@@ -150,7 +151,7 @@ public class UserServiceIT {
             .isTrue();
     }
 
-
+//  HERE WE NEED TO UPDATE THE CREATED DATE TO THE PAST
 //    @Test
 //    public void testRemoveNotActivatedUsers() {
 //        // custom "now" for audit to use as creation date
@@ -206,6 +207,73 @@ public class UserServiceIT {
 
         // Second (already activated) user
         Assertions.assertThrows(LoginAlreadyUsedException.class, () -> {
+            userService.registerUser(secondUser, secondUser.getPassword());
+        });
+    }
+
+    @Test
+    public void testRegisterDuplicateEmail()  {
+        // First user
+        ManagedUserVM firstUser = new ManagedUserVM();
+        firstUser.setLogin("test-register-duplicate-email");
+        firstUser.setPassword("password");
+        firstUser.setFirstName("Alice");
+        firstUser.setLastName("Test");
+        firstUser.setEmail("test-register-duplicate-email@example.com");
+        firstUser.setImageUrl("http://placehold.it/50x50");
+        firstUser.setLangKey(Constants.DEFAULT_LANGUAGE);
+        firstUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
+
+        // Register first user
+        userService.registerUser(firstUser, firstUser.getPassword());
+
+        Optional<User> testUser1 = userRepository.findOneByLogin("test-register-duplicate-email");
+        assertThat(testUser1.isPresent()).isTrue();
+
+        // Duplicate email, different login
+        ManagedUserVM secondUser = new ManagedUserVM();
+        secondUser.setLogin("test-register-duplicate-email-2");
+        secondUser.setPassword(firstUser.getPassword());
+        secondUser.setFirstName(firstUser.getFirstName());
+        secondUser.setLastName(firstUser.getLastName());
+        secondUser.setEmail(firstUser.getEmail());
+        secondUser.setImageUrl(firstUser.getImageUrl());
+        secondUser.setLangKey(firstUser.getLangKey());
+        secondUser.setAuthorities(new HashSet<>(firstUser.getAuthorities()));
+
+        // Register second (non activated) user
+        userService.registerUser(secondUser, secondUser.getPassword());
+
+        Optional<User> testUser2 = userRepository.findOneByLogin("test-register-duplicate-email");
+        assertThat(testUser2.isPresent()).isFalse();
+
+        Optional<User> testUser3 = userRepository.findOneByLogin("test-register-duplicate-email-2");
+        assertThat(testUser3.isPresent()).isTrue();
+
+        // Duplicate email - with uppercase email address
+        ManagedUserVM userWithUpperCaseEmail = new ManagedUserVM();
+        userWithUpperCaseEmail.setId(firstUser.getId());
+        userWithUpperCaseEmail.setLogin("test-register-duplicate-email-3");
+        userWithUpperCaseEmail.setPassword(firstUser.getPassword());
+        userWithUpperCaseEmail.setFirstName(firstUser.getFirstName());
+        userWithUpperCaseEmail.setLastName(firstUser.getLastName());
+        userWithUpperCaseEmail.setEmail("TEST-register-duplicate-email@example.com");
+        userWithUpperCaseEmail.setImageUrl(firstUser.getImageUrl());
+        userWithUpperCaseEmail.setLangKey(firstUser.getLangKey());
+        userWithUpperCaseEmail.setAuthorities(new HashSet<>(firstUser.getAuthorities()));
+
+        // Register third (not activated) user
+        userService.registerUser(userWithUpperCaseEmail, userWithUpperCaseEmail.getPassword());
+
+        Optional<User> testUser4 = userRepository.findOneByLogin("test-register-duplicate-email-3");
+        assertThat(testUser4.isPresent()).isTrue();
+        assertThat(testUser4.get().getEmail()).isEqualTo("test-register-duplicate-email@example.com");
+
+        testUser4.get().setActivated(true);
+        userService.updateUser((new UserDTO(testUser4.get())));
+
+        // Register 4th (already activated) user
+        Assertions.assertThrows(EmailAlreadyUsedException.class, () -> {
             userService.registerUser(secondUser, secondUser.getPassword());
         });
     }

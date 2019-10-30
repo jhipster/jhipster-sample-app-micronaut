@@ -12,7 +12,6 @@ import io.github.jhipster.sample.service.UserService;
 import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.context.annotation.Property;
-import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -20,16 +19,12 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.providers.PasswordEncoder;
-import io.micronaut.security.filters.AuthenticationFetcher;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
-import io.reactivex.Flowable;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.reactivestreams.Publisher;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -53,29 +48,29 @@ public class AccountResourceIT {
     @Inject AuthorityRepository authorityRepository;
     @Inject UserService userService;
     @Inject PasswordEncoder passwordEncoder;
-    //@Inject MailService mailService;
+    @Inject MailService mailService;
     @Inject @Client("/") RxHttpClient client;
 
-//    @MockBean(UserService.class)
-//    UserService userService() {
-//        return mock(UserService.class);
-//    }
+    @MockBean(UserService.class)
+    UserService userService() {
+        return mock(UserService.class);
+    }
 
     @MockBean(MailService.class)
     MailService mailService() {
         return mock(MailService.class);
     }
 
-//    @BeforeEach
-//    public void setup() {
-//        doNothing().when(mailService).sendActivationEmail(any());
-//    }
+    @BeforeEach
+    public void setup() {
+        doNothing().when(mailService).sendActivationEmail(any());
+    }
 
     @Test
     public void testNonAuthenticatedUser()  {
         HttpClientResponseException ex = Assertions.catchThrowableOfType(() -> {
-                client.exchange(HttpRequest.GET("/api/authenticate").accept(MediaType.APPLICATION_JSON_TYPE), String.class).blockingFirst();
-            }, HttpClientResponseException.class);
+            client.exchange(HttpRequest.GET("/api/authenticate").accept(MediaType.APPLICATION_JSON_TYPE), String.class).blockingFirst();
+        }, HttpClientResponseException.class);
 
         assertThat(ex.getResponse().status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
@@ -239,64 +234,6 @@ public class AccountResourceIT {
 
         Optional<User> user = userRepository.findOneByLogin("bob");
         assertThat(user.isPresent()).isFalse();
-    }
-
-
-    @Test
-    public void testRegisterDuplicateLogin()  {
-        // First registration
-        ManagedUserVM firstUser = new ManagedUserVM();
-        firstUser.setLogin("alice");
-        firstUser.setPassword("password");
-        firstUser.setFirstName("Alice");
-        firstUser.setLastName("Something");
-        firstUser.setEmail("alice@example.com");
-        firstUser.setImageUrl("http://placehold.it/50x50");
-        firstUser.setLangKey(Constants.DEFAULT_LANGUAGE);
-        firstUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
-
-        // Duplicate login, different email
-        ManagedUserVM secondUser = new ManagedUserVM();
-        secondUser.setLogin(firstUser.getLogin());
-        secondUser.setPassword(firstUser.getPassword());
-        secondUser.setFirstName(firstUser.getFirstName());
-        secondUser.setLastName(firstUser.getLastName());
-        secondUser.setEmail("alice2@example.com");
-        secondUser.setImageUrl(firstUser.getImageUrl());
-        secondUser.setLangKey(firstUser.getLangKey());
-        //secondUser.setCreatedBy(firstUser.getCreatedBy());
-        secondUser.setCreatedDate(firstUser.getCreatedDate());
-        //secondUser.setLastModifiedBy(firstUser.getLastModifiedBy());
-        secondUser.setLastModifiedDate(firstUser.getLastModifiedDate());
-        secondUser.setAuthorities(new HashSet<>(firstUser.getAuthorities()));
-
-        // First user
-//        restMvc.perform(
-//            post("/api/register")
-//                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//                .content(TestUtil.convertObjectToJsonBytes(firstUser)))
-//            .andExpect(status().isCreated());
-        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/register", firstUser), String.class).blockingFirst();
-
-        assertThat(response.status().getCode()).isEqualTo(HttpStatus.CREATED.getCode());
-//        // Second (non activated) user
-//        restMvc.perform(
-//            post("/api/register")
-//                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//                .content(TestUtil.convertObjectToJsonBytes(secondUser)))
-//            .andExpect(status().isCreated());
-//
-//        Optional<User> testUser = userRepository.findOneByEmailIgnoreCase("alice2@example.com");
-//        assertThat(testUser.isPresent()).isTrue();
-//        testUser.get().setActivated(true);
-//        userRepository.save(testUser.get());
-//
-//        // Second (already activated) user
-//        restMvc.perform(
-//            post("/api/register")
-//                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//                .content(TestUtil.convertObjectToJsonBytes(secondUser)))
-//            .andExpect(status().is4xxClientError());
     }
 
      /*

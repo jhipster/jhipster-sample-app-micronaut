@@ -3,22 +3,23 @@ package io.github.jhipster.sample.service;
 import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.UserRepository;
+import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.service.util.RandomUtil;
+import io.github.jhipster.sample.web.rest.errors.LoginAlreadyUsedException;
+import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.test.annotation.MicronautTest;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,20 +151,62 @@ public class UserServiceIT {
     }
 
 
+//    @Test
+//    public void testRemoveNotActivatedUsers() {
+//        // custom "now" for audit to use as creation date
+//        //when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
+//
+//        user.setActivated(false);
+//        userRepository.saveAndFlush(user);
+//        user.setCreatedDate(Instant.now().minus(30, ChronoUnit.DAYS));
+//
+//        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
+//
+//
+//        userService.removeNotActivatedUsers();
+//        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isNotPresent();
+//    }
+
     @Test
-    public void testRemoveNotActivatedUsers() {
-        // custom "now" for audit to use as creation date
-        //when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
+    public void testRegisterDuplicateLogin() {
+        // First registration
+        ManagedUserVM firstUser = new ManagedUserVM();
+        firstUser.setLogin("alice");
+        firstUser.setPassword("password");
+        firstUser.setFirstName("Alice");
+        firstUser.setLastName("Something");
+        firstUser.setEmail("alice@example.com");
+        firstUser.setImageUrl("http://placehold.it/50x50");
+        firstUser.setLangKey(Constants.DEFAULT_LANGUAGE);
+        firstUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
-        user.setActivated(false);
-        userRepository.saveAndFlush(user);
-        user.setCreatedDate(Instant.now().minus(30, ChronoUnit.DAYS));
+        // Duplicate login, different email
+        ManagedUserVM secondUser = new ManagedUserVM();
+        secondUser.setLogin(firstUser.getLogin());
+        secondUser.setPassword(firstUser.getPassword());
+        secondUser.setFirstName(firstUser.getFirstName());
+        secondUser.setLastName(firstUser.getLastName());
+        secondUser.setEmail("alice2@example.com");
+        secondUser.setImageUrl(firstUser.getImageUrl());
+        secondUser.setLangKey(firstUser.getLangKey());
+        secondUser.setCreatedDate(firstUser.getCreatedDate());
+        secondUser.setLastModifiedDate(firstUser.getLastModifiedDate());
+        secondUser.setAuthorities(new HashSet<>(firstUser.getAuthorities()));
 
-        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
+        // First user
+        userService.registerUser(firstUser, firstUser.getPassword());
 
+        // Second (non activated) user
+        userService.registerUser(secondUser, secondUser.getPassword());
 
-        userService.removeNotActivatedUsers();
-        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isNotPresent();
+        Optional<User> testUser = userRepository.findOneByEmailIgnoreCase("alice2@example.com");
+        assertThat(testUser.isPresent()).isTrue();
+        testUser.get().setActivated(true);
+        userRepository.mergeAndSave(testUser.get());
+
+        // Second (already activated) user
+        Assertions.assertThrows(LoginAlreadyUsedException.class, () -> {
+            userService.registerUser(secondUser, secondUser.getPassword());
+        });
     }
-
 }

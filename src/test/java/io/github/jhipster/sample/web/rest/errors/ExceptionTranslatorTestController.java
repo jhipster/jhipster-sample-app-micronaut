@@ -1,10 +1,18 @@
 package io.github.jhipster.sample.web.rest.errors;
 
+import io.github.jhipster.sample.web.rest.errors.handlers.ProblemHandler;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Error;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.rules.SecurityRule;
 import org.springframework.dao.ConcurrencyFailureException;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
+import org.zalando.problem.StatusType;
 
 import javax.validation.Valid;
 
@@ -48,6 +56,11 @@ public class ExceptionTranslatorTestController {
     @Get("/internal-server-error")
     public void internalServerError() {
         throw new RuntimeException();
+    }
+
+    @Error(exception = TestResponseStatusException.class)
+    public HttpResponse<Problem> errorResponse(HttpRequest request, TestResponseStatusException exception) {
+        return ProblemHandler.create(Problem.builder().withStatus(Status.BAD_REQUEST).build(), request, exception);
     }
 
     @SuppressWarnings("serial")

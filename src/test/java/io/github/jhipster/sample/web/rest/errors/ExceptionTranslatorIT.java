@@ -107,16 +107,11 @@ public class ExceptionTranslatorIT {
 
     @Test
     public void testExceptionWithResponseStatus() throws Exception {
-//        mockMvc.perform(get("/test/response-status"))
-//            .andExpect(status().isBadRequest())
-//            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-//            .andExpect(jsonPath("$.message").value("error.http.400"))
-//            .andExpect(jsonPath("$.title").value("test response status"));
         HttpResponse<String> response = client.exchange(HttpRequest.GET("/test/response-status"), Argument.of(String.class), Argument.of(Problem.class)).onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
         Problem problem = response.getBody(Problem.class).get();
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
-        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.403");
+        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.400");
     }
 /*
     @Test

@@ -26,7 +26,7 @@ public class ProblemHandler {
     public static final MediaType PROBLEM = MediaType.of("application/problem+json");
     public static final MediaType X_PROBLEM = MediaType.of("application/x.problem+json");
 
-    protected void log(HttpStatus status, Exception exception) {
+    private static void log(HttpStatus status, Exception exception) {
         if (status.getCode() >= 400 && status.getCode() <= 499) {
             LOG.warn("{}: {}", status.getReason(), exception.getMessage());
         } else if (status.getCode() >= 500) {
@@ -37,7 +37,7 @@ public class ProblemHandler {
     /**
      * Post-process the Problem payload to add the message key for the front-end if needed.
      */
-    public Problem process(@Nullable Problem problem, HttpRequest request) {
+    private static Problem process(@Nullable Problem problem, HttpRequest request) {
         if (!(problem instanceof ConstraintViolationProblem || problem instanceof DefaultProblem)) {
             return problem;
         }
@@ -64,7 +64,7 @@ public class ProblemHandler {
         return builder.build();
     }
 
-    protected MediaType getProblemMediaType(final HttpRequest request) {
+    private static  MediaType getProblemMediaType(final HttpRequest request) {
         List<MediaType> mediaTypes = Arrays.asList(MediaType.of(request.getHeaders().getAll(HttpHeaders.ACCEPT).toArray(new CharSequence[]{})));
 
         if (mediaTypes.contains(X_PROBLEM)) {
@@ -74,7 +74,7 @@ public class ProblemHandler {
         }
     }
 
-    protected MutableHttpResponse<Problem> create(Problem problem, HttpRequest request, @Nullable Exception exception) {
+    public static MutableHttpResponse<Problem> create(Problem problem, HttpRequest request, @Nullable Exception exception) {
         problem = process(problem, request);
 
         HttpStatus status = HttpStatus.valueOf(Optional.ofNullable(problem.getStatus()).orElse(org.zalando.problem.Status.INTERNAL_SERVER_ERROR).getStatusCode());

@@ -150,18 +150,20 @@ public class UserServiceIT {
     }
 
 
-//    @Test
-//    public void testRemoveNotActivatedUsers() {
-//        // custom "now" for audit to use as creation date
-//        //when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
-//
-//        user.setActivated(false);
-//        userRepository.saveAndFlush(user);
-//        user.setCreatedDate(Instant.now().minus(30, ChronoUnit.DAYS));
-//
-//        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
-//        userService.removeNotActivatedUsers();
-//        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isNotPresent();
-//    }
+    @Test
+    public void testRemoveNotActivatedUsers() {
+        // custom "now" for audit to use as creation date
+        //when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
+
+        user.setActivated(false);
+        userRepository.saveAndFlush(user);
+        user.setCreatedDate(Instant.now().minus(30, ChronoUnit.DAYS));
+
+        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
+
+
+        userService.removeNotActivatedUsers();
+        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isNotPresent();
+    }
 
 }

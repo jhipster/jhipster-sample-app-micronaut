@@ -2,6 +2,7 @@ package io.github.jhipster.sample.service;
 
 import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.User;
+import io.github.jhipster.sample.repository.AuthorityRepository;
 import io.github.jhipster.sample.repository.UserRepository;
 import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.dto.UserDTO;
@@ -47,6 +48,9 @@ public class UserServiceIT {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    AuthorityRepository authorityRepository;
 
     @Inject
     private UserService userService;
@@ -276,5 +280,26 @@ public class UserServiceIT {
         Assertions.assertThrows(EmailAlreadyUsedException.class, () -> {
             userService.registerUser(secondUser, secondUser.getPassword());
         });
+    }
+
+    @Test
+    public void testRegisterAdminIsIgnored()  {
+        ManagedUserVM validUser = new ManagedUserVM();
+        validUser.setLogin("badguy");
+        validUser.setPassword("password");
+        validUser.setFirstName("Bad");
+        validUser.setLastName("Guy");
+        validUser.setEmail("badguy@example.com");
+        validUser.setActivated(true);
+        validUser.setImageUrl("http://placehold.it/50x50");
+        validUser.setLangKey(Constants.DEFAULT_LANGUAGE);
+        validUser.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
+
+        userService.registerUser(validUser, validUser.getPassword());
+
+        Optional<User> userDup = userRepository.findOneByLogin("badguy");
+        assertThat(userDup.isPresent()).isTrue();
+        assertThat(userDup.get().getAuthorities()).hasSize(1)
+            .containsExactly(authorityRepository.findById(AuthoritiesConstants.USER).get());
     }
 }

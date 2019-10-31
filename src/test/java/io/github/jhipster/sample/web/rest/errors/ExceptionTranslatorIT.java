@@ -80,8 +80,8 @@ public class ExceptionTranslatorIT {
         HttpResponse<String> response = client.exchange(HttpRequest.GET("/test/access-denied"), Argument.of(String.class), Argument.of(Problem.class)).onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
         Problem problem = response.getBody(Problem.class).get();
 
-        assertThat(response.status().getCode()).isEqualTo(HttpStatus.FORBIDDEN.getCode());
-        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.403");
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.401");
     }
 
     @Test
@@ -113,14 +113,11 @@ public class ExceptionTranslatorIT {
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
         assertThat(problem.getParameters().get("message")).isEqualTo("error.http.400");
     }
-/*
+
     @Test
     public void testInternalServerError() throws Exception {
-        mockMvc.perform(get("/test/internal-server-error"))
-            .andExpect(status().isInternalServerError())
-            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.500"))
-            .andExpect(jsonPath("$.title").value("Internal Server Error"));
+        HttpResponse<String> response = client.exchange(HttpRequest.GET("/test/internal-server-error"), Argument.of(String.class)).onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getCode());
     }
-*/
+
 }

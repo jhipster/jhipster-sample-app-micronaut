@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Integration tests for {@link UserService}.
@@ -301,5 +302,30 @@ public class UserServiceIT {
         assertThat(userDup.isPresent()).isTrue();
         assertThat(userDup.get().getAuthorities()).hasSize(1)
             .containsExactly(authorityRepository.findById(AuthoritiesConstants.USER).get());
+    }
+
+
+    @Test
+    public void testActivateAccount()  {
+        final String activationKey = "some activation key";
+        User user = new User();
+        user.setLogin("activate-account");
+        user.setEmail("activate-account@example.com");
+        user.setPassword(RandomStringUtils.random(60));
+        user.setActivated(false);
+        user.setActivationKey(activationKey);
+        userRepository.saveAndFlush(user);
+
+        userService.activateRegistration(activationKey);
+
+        user = userRepository.findOneByLogin(user.getLogin()).orElse(null);
+        assertThat(user.getActivated()).isTrue();
+    }
+
+    @Test
+    public void testActivateAccountWithWrongKey()  {
+        Optional<User> user = userService.activateRegistration("wrongActivationKey");
+
+        assertFalse(user.isPresent());
     }
 }

@@ -25,7 +25,6 @@ import io.micronaut.test.annotation.MockBean;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -240,33 +239,6 @@ public class AccountResourceIT {
 /*
     @Test
     @Transactional
-    public void testActivateAccount()  {
-        final String activationKey = "some activation key";
-        User user = new User();
-        user.setLogin("activate-account");
-        user.setEmail("activate-account@example.com");
-        user.setPassword(RandomStringUtils.random(60));
-        user.setActivated(false);
-        user.setActivationKey(activationKey);
-
-        userRepository.saveAndFlush(user);
-
-        restMvc.perform(get("/api/activate?key={activationKey}", activationKey))
-            .andExpect(status().isOk());
-
-        user = userRepository.findOneByLogin(user.getLogin()).orElse(null);
-        assertThat(user.getActivated()).isTrue();
-    }
-
-    @Test
-    @Transactional
-    public void testActivateAccountWithWrongKey()  {
-        restMvc.perform(get("/api/activate?key=wrongActivationKey"))
-            .andExpect(status().isInternalServerError());
-    }
-
-    @Test
-    @Transactional
     @WithMockUser("save-account")
     public void testSaveAccount()  {
         User user = new User();
@@ -304,6 +276,7 @@ public class AccountResourceIT {
         assertThat(updatedUser.getAuthorities()).isEmpty();
     }
 
+    /*
     @Test
     @Transactional
     @WithMockUser("save-invalid-email")

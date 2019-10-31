@@ -403,71 +403,7 @@ public class AccountResourceIT {
         verify(userService, times(1)).changePassword(anyString(), eq("new password"));
     }
 
-/*
-    @Test
-    @Transactional
-    @WithMockUser("change-password-too-small")
-    public void testChangePasswordTooSmall()  {
-        User user = new User();
-        String currentPassword = RandomStringUtils.random(60);
-        user.setPassword(passwordEncoder.encode(currentPassword));
-        user.setLogin("change-password-too-small");
-        user.setEmail("change-password-too-small@example.com");
-        userRepository.saveAndFlush(user);
-
-        String newPassword = RandomStringUtils.random(ManagedUserVM.PASSWORD_MIN_LENGTH - 1);
-
-        restMvc.perform(post("/api/account/change-password")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, newPassword))))
-            .andExpect(status().isBadRequest());
-
-        User updatedUser = userRepository.findOneByLogin("change-password-too-small").orElse(null);
-        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
-    }
-
-    @Test
-    @Transactional
-    @WithMockUser("change-password-too-long")
-    public void testChangePasswordTooLong()  {
-        User user = new User();
-        String currentPassword = RandomStringUtils.random(60);
-        user.setPassword(passwordEncoder.encode(currentPassword));
-        user.setLogin("change-password-too-long");
-        user.setEmail("change-password-too-long@example.com");
-        userRepository.saveAndFlush(user);
-
-        String newPassword = RandomStringUtils.random(ManagedUserVM.PASSWORD_MAX_LENGTH + 1);
-
-        restMvc.perform(post("/api/account/change-password")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, newPassword))))
-            .andExpect(status().isBadRequest());
-
-        User updatedUser = userRepository.findOneByLogin("change-password-too-long").orElse(null);
-        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
-    }
-
-    @Test
-    @Transactional
-    @WithMockUser("change-password-empty")
-    public void testChangePasswordEmpty()  {
-        User user = new User();
-        String currentPassword = RandomStringUtils.random(60);
-        user.setPassword(passwordEncoder.encode(currentPassword));
-        user.setLogin("change-password-empty");
-        user.setEmail("change-password-empty@example.com");
-        userRepository.saveAndFlush(user);
-
-        restMvc.perform(post("/api/account/change-password")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, ""))))
-            .andExpect(status().isBadRequest());
-
-        User updatedUser = userRepository.findOneByLogin("change-password-empty").orElse(null);
-        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
-    }
-
+    /*
     @Test
     @Transactional
     public void testRequestPasswordReset()  {

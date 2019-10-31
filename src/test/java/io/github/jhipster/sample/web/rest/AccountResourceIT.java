@@ -22,6 +22,7 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.security.authentication.providers.PasswordEncoder;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.*;
 /**
  * Integration tests for the {@link AccountResource} REST controller.
  */
-@MicronautTest(application = JhipsterSampleApplicationApp.class)
+@MicronautTest(application = JhipsterSampleApplicationApp.class, transactional = false)
 @Property(name = "micronaut.security.enabled", value = "false")
 public class AccountResourceIT {
 
@@ -236,11 +237,9 @@ public class AccountResourceIT {
     }
 
 
-/*
     @Test
-    @Transactional
-    @WithMockUser("save-account")
     public void testSaveAccount()  {
+        when(userService.getCurrentUserLogin()).thenReturn(Optional.of("save-account"));
         User user = new User();
         user.setLogin("save-account");
         user.setEmail("save-account@example.com");
@@ -259,28 +258,18 @@ public class AccountResourceIT {
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
-        restMvc.perform(
-            post("/api/account")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
-            .andExpect(status().isOk());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account", userDTO), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();;
 
-        User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
-        assertThat(updatedUser.getFirstName()).isEqualTo(userDTO.getFirstName());
-        assertThat(updatedUser.getLastName()).isEqualTo(userDTO.getLastName());
-        assertThat(updatedUser.getEmail()).isEqualTo(userDTO.getEmail());
-        assertThat(updatedUser.getLangKey()).isEqualTo(userDTO.getLangKey());
-        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
-        assertThat(updatedUser.getImageUrl()).isEqualTo(userDTO.getImageUrl());
-        assertThat(updatedUser.getActivated()).isEqualTo(true);
-        assertThat(updatedUser.getAuthorities()).isEmpty();
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+
+        verify(userService, times(1)).updateUser("firstname", "lastname",
+            "save-account@example.com", "en", "http://placehold.it/50x50");
     }
 
-    /*
     @Test
-    @Transactional
-    @WithMockUser("save-invalid-email")
     public void testSaveInvalidEmail()  {
+        when(userService.getCurrentUserLogin()).thenReturn(Optional.of("save-invalid-email"));
         User user = new User();
         user.setLogin("save-invalid-email");
         user.setEmail("save-invalid-email@example.com");
@@ -299,19 +288,17 @@ public class AccountResourceIT {
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
-        restMvc.perform(
-            post("/api/account")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
-            .andExpect(status().isBadRequest());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account", userDTO), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
 
         assertThat(userRepository.findOneByEmailIgnoreCase("invalid email")).isNotPresent();
     }
 
     @Test
-    @Transactional
-    @WithMockUser("save-existing-email")
     public void testSaveExistingEmail()  {
+        when(userService.getCurrentUserLogin()).thenReturn(Optional.of("save-existing-email"));
         User user = new User();
         user.setLogin("save-existing-email");
         user.setEmail("save-existing-email@example.com");
@@ -338,16 +325,16 @@ public class AccountResourceIT {
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
-        restMvc.perform(
-            post("/api/account")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
-            .andExpect(status().isBadRequest());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account", userDTO), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
     }
 
+    /*
     @Test
     @Transactional
     @WithMockUser("save-existing-email-and-login")

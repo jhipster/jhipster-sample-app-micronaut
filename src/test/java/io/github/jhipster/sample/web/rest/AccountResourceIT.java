@@ -9,6 +9,7 @@ import io.github.jhipster.sample.repository.UserRepository;
 import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.MailService;
 import io.github.jhipster.sample.service.UserService;
+import io.github.jhipster.sample.service.dto.PasswordChangeDTO;
 import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.context.annotation.Property;
@@ -334,11 +335,10 @@ public class AccountResourceIT {
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
     }
 
-    /*
+
     @Test
-    @Transactional
-    @WithMockUser("save-existing-email-and-login")
     public void testSaveExistingEmailAndLogin()  {
+        when(userService.getCurrentUserLogin()).thenReturn(Optional.of("save-existing-email-and-login"));
         User user = new User();
         user.setLogin("save-existing-email-and-login");
         user.setEmail("save-existing-email-and-login@example.com");
@@ -357,19 +357,19 @@ public class AccountResourceIT {
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
-        restMvc.perform(
-            post("/api/account")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(userDTO)))
-            .andExpect(status().isOk());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account", userDTO), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();;
 
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+
+        verify(userService, times(1)).updateUser("firstname", "lastname",
+            "save-existing-email-and-login@example.com", "en", "http://placehold.it/50x50");
         User updatedUser = userRepository.findOneByLogin("save-existing-email-and-login").orElse(null);
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email-and-login@example.com");
     }
 
+
     @Test
-    @Transactional
-    @WithMockUser("change-password-wrong-existing-password")
     public void testChangePasswordWrongExistingPassword()  {
         User user = new User();
         String currentPassword = RandomStringUtils.random(60);
@@ -378,19 +378,15 @@ public class AccountResourceIT {
         user.setEmail("change-password-wrong-existing-password@example.com");
         userRepository.saveAndFlush(user);
 
-        restMvc.perform(post("/api/account/change-password")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO("1"+currentPassword, "new password"))))
-            .andExpect(status().isBadRequest());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account/change-password", new PasswordChangeDTO("1"+currentPassword, "new password")), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();;
 
-        User updatedUser = userRepository.findOneByLogin("change-password-wrong-existing-password").orElse(null);
-        assertThat(passwordEncoder.matches("new password", updatedUser.getPassword())).isFalse();
-        assertThat(passwordEncoder.matches(currentPassword, updatedUser.getPassword())).isTrue();
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+
+        verify(userService, times(1)).changePassword(anyString(), eq("new password"));
     }
 
     @Test
-    @Transactional
-    @WithMockUser("change-password")
     public void testChangePassword()  {
         User user = new User();
         String currentPassword = RandomStringUtils.random(60);
@@ -399,15 +395,15 @@ public class AccountResourceIT {
         user.setEmail("change-password@example.com");
         userRepository.saveAndFlush(user);
 
-        restMvc.perform(post("/api/account/change-password")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new PasswordChangeDTO(currentPassword, "new password"))))
-            .andExpect(status().isOk());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account/change-password", new PasswordChangeDTO(currentPassword, "new password")), String.class).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();;
 
-        User updatedUser = userRepository.findOneByLogin("change-password").orElse(null);
-        assertThat(passwordEncoder.matches("new password", updatedUser.getPassword())).isTrue();
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+
+        verify(userService, times(1)).changePassword(anyString(), eq("new password"));
     }
 
+/*
     @Test
     @Transactional
     @WithMockUser("change-password-too-small")

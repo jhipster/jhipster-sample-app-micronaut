@@ -156,22 +156,20 @@ public class UserServiceIT {
             .isTrue();
     }
 
-//  HERE WE NEED TO UPDATE THE CREATED DATE TO THE PAST
-//    @Test
-//    public void testRemoveNotActivatedUsers() {
-//        // custom "now" for audit to use as creation date
-//        //when(dateTimeProvider.getNow()).thenReturn(Optional.of(Instant.now().minus(30, ChronoUnit.DAYS)));
-//
-//        user.setActivated(false);
-//        userRepository.saveAndFlush(user);
-//        user.setCreatedDate(Instant.now().minus(30, ChronoUnit.DAYS));
-//
-//        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
-//
-//
-//        userService.removeNotActivatedUsers();
-//        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isNotPresent();
-//    }
+    @Test
+    public void testRemoveNotActivatedUsers() {
+        user.setActivated(false);
+        userRepository.saveAndFlush(user);
+
+        // Instead of this we could use the solution to this (when its implemented) - implement an interface to create the time
+        // https://github.com/micronaut-projects/micronaut-data/issues/242
+        userRepository.update(user.getId(), Instant.now().minus(30, ChronoUnit.DAYS));
+
+        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isPresent();
+
+        userService.removeNotActivatedUsers();
+        assertThat(userRepository.findOneByLogin(DEFAULT_LOGIN)).isNotPresent();
+    }
 
     @Test
     public void testRegisterDuplicateLogin() {

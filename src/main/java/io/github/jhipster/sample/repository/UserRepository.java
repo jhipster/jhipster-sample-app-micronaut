@@ -4,6 +4,7 @@ import io.github.jhipster.sample.domain.Operation;
 import io.github.jhipster.sample.domain.User;
 import io.micronaut.cache.annotation.Cacheable;
 import io.micronaut.configuration.hibernate.jpa.scope.CurrentSession;
+import io.micronaut.data.annotation.Id;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.annotation.EntityGraph;
 import io.micronaut.data.jpa.repository.JpaRepository;
@@ -48,6 +49,8 @@ public abstract class UserRepository implements JpaRepository<User, Long> {
     public abstract Optional<User> findOneByEmail(String email);
 
     public abstract Page<User> findAllByLoginNot(String login, Pageable pageable);
+
+    public abstract void update(@Id Long id, Instant createdDate);
 
     public UserRepository(@CurrentSession EntityManager entityManager) {
         this.entityManager = entityManager;

@@ -13,6 +13,7 @@ import io.github.jhipster.sample.service.dto.PasswordChangeDTO;
 import io.github.jhipster.sample.service.dto.UserDTO;
 import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -75,18 +76,6 @@ public class AccountResourceIT {
 
         assertThat(ex.getResponse().status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
-/*
-    @Test
-    public void testAuthenticatedUser()  {
-        restUserMockMvc.perform(get("/api/authenticate")
-            .with(request -> {
-                request.setRemoteUser("test");
-                return request;
-            })
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string("test"));
-    } */
 
     @Test
     public void testGetExistingAccount()  {
@@ -403,9 +392,7 @@ public class AccountResourceIT {
         verify(userService, times(1)).changePassword(anyString(), eq("new password"));
     }
 
-    /*
     @Test
-    @Transactional
     public void testRequestPasswordReset()  {
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
@@ -413,97 +400,12 @@ public class AccountResourceIT {
         user.setLogin("password-reset");
         user.setEmail("password-reset@example.com");
         userRepository.saveAndFlush(user);
+        when(userService.requestPasswordReset(anyString())).thenReturn(Optional.of(user));
 
-        restMvc.perform(post("/api/account/reset-password/init")
-            .content("password-reset@example.com"))
-            .andExpect(status().isOk());
+        HttpResponse<String> response = client.exchange(HttpRequest.POST("/api/account/reset-password/init", "{\"mail\":\"password-reset@example.com\"}"), Argument.of(String.class)).
+            onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+        verify(userService, times(1)).requestPasswordReset(anyString());
     }
-
-    @Test
-    @Transactional
-    public void testRequestPasswordResetUpperCaseEmail()  {
-        User user = new User();
-        user.setPassword(RandomStringUtils.random(60));
-        user.setActivated(true);
-        user.setLogin("password-reset");
-        user.setEmail("password-reset@example.com");
-        userRepository.saveAndFlush(user);
-
-        restMvc.perform(post("/api/account/reset-password/init")
-            .content("password-reset@EXAMPLE.COM"))
-            .andExpect(status().isOk());
-    }
-
-    @Test
-    public void testRequestPasswordResetWrongEmail()  {
-        restMvc.perform(
-            post("/api/account/reset-password/init")
-                .content("password-reset-wrong-email@example.com"))
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @Transactional
-    public void testFinishPasswordReset()  {
-        User user = new User();
-        user.setPassword(RandomStringUtils.random(60));
-        user.setLogin("finish-password-reset");
-        user.setEmail("finish-password-reset@example.com");
-        user.setResetDate(Instant.now().plusSeconds(60));
-        user.setResetKey("reset key");
-        userRepository.saveAndFlush(user);
-
-        KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
-        keyAndPassword.setKey(user.getResetKey());
-        keyAndPassword.setNewPassword("new password");
-
-        restMvc.perform(
-            post("/api/account/reset-password/finish")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(keyAndPassword)))
-            .andExpect(status().isOk());
-
-        User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
-        assertThat(passwordEncoder.matches(keyAndPassword.getNewPassword(), updatedUser.getPassword())).isTrue();
-    }
-
-    @Test
-    @Transactional
-    public void testFinishPasswordResetTooSmall()  {
-        User user = new User();
-        user.setPassword(RandomStringUtils.random(60));
-        user.setLogin("finish-password-reset-too-small");
-        user.setEmail("finish-password-reset-too-small@example.com");
-        user.setResetDate(Instant.now().plusSeconds(60));
-        user.setResetKey("reset key too small");
-        userRepository.saveAndFlush(user);
-
-        KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
-        keyAndPassword.setKey(user.getResetKey());
-        keyAndPassword.setNewPassword("foo");
-
-        restMvc.perform(
-            post("/api/account/reset-password/finish")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(keyAndPassword)))
-            .andExpect(status().isBadRequest());
-
-        User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
-        assertThat(passwordEncoder.matches(keyAndPassword.getNewPassword(), updatedUser.getPassword())).isFalse();
-    }
-
-
-    @Test
-    @Transactional
-    public void testFinishPasswordResetWrongKey()  {
-        KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
-        keyAndPassword.setKey("wrong reset key");
-        keyAndPassword.setNewPassword("new password");
-
-        restMvc.perform(
-            post("/api/account/reset-password/finish")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(keyAndPassword)))
-            .andExpect(status().isInternalServerError());
-    }*/
 }

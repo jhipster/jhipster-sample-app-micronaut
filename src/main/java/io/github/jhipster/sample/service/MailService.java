@@ -1,25 +1,20 @@
 package io.github.jhipster.sample.service;
 
 import io.github.jhipster.sample.domain.User;
-
-
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import javax.inject.Singleton;
-import javax.mail.internet.MimeMessage;
-
-import io.github.jhipster.sample.message.MicronautThymeMessageResolver;
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.MessageSource;
 import io.micronaut.scheduling.annotation.Async;
-import io.micronaut.views.thymeleaf.ThymeleafViewsRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import javax.inject.Singleton;
+import javax.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 /**
  * Service for sending emails.
@@ -45,14 +40,12 @@ public class MailService {
 
 
     public MailService(JHipsterProperties jHipsterProperties, JavaMailSender javaMailSender,
-                       MessageSource messageSource, TemplateEngine templateEngine,
-                       MicronautThymeMessageResolver micronautThymeMessageResolver) {
+                       MessageSource messageSource, TemplateEngine templateEngine) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
-        this.templateEngine.addMessageResolver(micronautThymeMessageResolver);
     }
 
     @Async

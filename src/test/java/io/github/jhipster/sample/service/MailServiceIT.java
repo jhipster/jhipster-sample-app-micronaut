@@ -2,12 +2,10 @@ package io.github.jhipster.sample.service;
 
 import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.User;
-import io.github.jhipster.sample.message.MicronautThymeMessageResolver;
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.MessageSource;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.test.annotation.MicronautTest;
-import io.micronaut.views.thymeleaf.ThymeleafViewsRenderer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,9 +46,6 @@ public class MailServiceIT {
     @Inject
     private TemplateEngine templateEngine;
 
-    @Inject
-    private MicronautThymeMessageResolver micronautThymeMessageResolver;
-
     @Spy
     private JavaMailSenderImpl javaMailSender;
 
@@ -59,11 +54,11 @@ public class MailServiceIT {
 
     private MailService mailService;
 
-    @BeforeAll
+    @BeforeEach
     public void setupMailService() {
         MockitoAnnotations.initMocks(this);
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
-        mailService = new MailService(jHipsterProperties, javaMailSender, messageSource, templateEngine, micronautThymeMessageResolver);
+        mailService = new MailService(jHipsterProperties, javaMailSender, messageSource, templateEngine);
     }
 
     @Test

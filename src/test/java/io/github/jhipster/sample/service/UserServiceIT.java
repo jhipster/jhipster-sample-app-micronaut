@@ -161,7 +161,7 @@ public class UserServiceIT {
         user.setActivated(false);
         userRepository.saveAndFlush(user);
 
-        // Instead of this we could use the solution to this (when its implemented) - implement an interface to create the time
+        // Instead of using update to set the past time, we could also implement DateTimeProvider - see this solution
         // https://github.com/micronaut-projects/micronaut-data/issues/242
         userRepository.update(user.getId(), Instant.now().minus(30, ChronoUnit.DAYS));
 

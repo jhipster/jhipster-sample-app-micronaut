@@ -75,15 +75,14 @@ public class ExceptionTranslatorIT {
         assertThat(problem.getParameters().get("message")).isEqualTo("error.http.400");
     }
 
-/*
     @Test
     public void testAccessDenied() throws Exception {
-        mockMvc.perform(get("/test/access-denied"))
-            .andExpect(status().isForbidden())
-            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.403"))
-            .andExpect(jsonPath("$.detail").value("test access denied!"));
-    }*/
+        HttpResponse<String> response = client.exchange(HttpRequest.GET("/test/access-denied"), Argument.of(String.class), Argument.of(Problem.class)).onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+        Problem problem = response.getBody(Problem.class).get();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.401");
+    }
 
     @Test
     public void testUnauthorized() throws Exception {
@@ -103,33 +102,22 @@ public class ExceptionTranslatorIT {
         Problem problem = response.getBody(Problem.class).get();
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED.getCode());
-        assertThat(response.getContentType()).hasValue(ProblemHandler.PROBLEM);
-        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.405");
-        assertThat(problem.getParameters().get("path")).isEqualTo("/test/unauthorized");
-
-/*        mockMvc.perform(post("/test/access-denied"))
-            .andExpect(status().isMethodNotAllowed())
-            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.405"))
-            .andExpect(jsonPath("$.detail").value("Request method 'POST' not supported"));*/
+        assertThat(problem.getParameters().get("message")).toString().startsWith("Method [POST] not allowed for URI [/test/access-denied].");
     }
-/*
+
     @Test
     public void testExceptionWithResponseStatus() throws Exception {
-        mockMvc.perform(get("/test/response-status"))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.400"))
-            .andExpect(jsonPath("$.title").value("test response status"));
+        HttpResponse<String> response = client.exchange(HttpRequest.GET("/test/response-status"), Argument.of(String.class), Argument.of(Problem.class)).onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+        Problem problem = response.getBody(Problem.class).get();
+
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
+        assertThat(problem.getParameters().get("message")).isEqualTo("error.http.400");
     }
 
     @Test
     public void testInternalServerError() throws Exception {
-        mockMvc.perform(get("/test/internal-server-error"))
-            .andExpect(status().isInternalServerError())
-            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.message").value("error.http.500"))
-            .andExpect(jsonPath("$.title").value("Internal Server Error"));
+        HttpResponse<String> response = client.exchange(HttpRequest.GET("/test/internal-server-error"), Argument.of(String.class)).onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getCode());
     }
-*/
+
 }

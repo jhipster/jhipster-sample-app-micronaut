@@ -4,16 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,9 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public final class TestUtil {
 
     private static final ObjectMapper mapper = createObjectMapper();
-
-    /** MediaType for JSON UTF8 */
-    public static final MediaType APPLICATION_JSON_UTF8 = MediaType.APPLICATION_JSON_UTF8;
 
     private static ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -59,48 +53,6 @@ public final class TestUtil {
         }
         return byteArray;
     }
-
-    /**
-     * A matcher that tests that the examined string represents the same instant as the reference datetime.
-     */
-    public static class ZonedDateTimeMatcher extends TypeSafeDiagnosingMatcher<String> {
-
-        private final ZonedDateTime date;
-
-        public ZonedDateTimeMatcher(ZonedDateTime date) {
-            this.date = date;
-        }
-
-        @Override
-        protected boolean matchesSafely(String item, Description mismatchDescription) {
-            try {
-                if (!date.isEqual(ZonedDateTime.parse(item))) {
-                    mismatchDescription.appendText("was ").appendValue(item);
-                    return false;
-                }
-                return true;
-            } catch (DateTimeParseException e) {
-                mismatchDescription.appendText("was ").appendValue(item)
-                    .appendText(", which could not be parsed as a ZonedDateTime");
-                return false;
-            }
-
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("a String representing the same Instant as ").appendValue(date);
-        }
-    }
-
-    /**
-     * Creates a matcher that matches when the examined string represents the same instant as the reference datetime.
-     * @param date the reference datetime against which the examined string is checked.
-     */
-    public static ZonedDateTimeMatcher sameInstant(ZonedDateTime date) {
-        return new ZonedDateTimeMatcher(date);
-    }
-
     /**
      * Verifies the equals/hashcode contract on the domain object.
      */
@@ -118,18 +70,6 @@ public final class TestUtil {
         assertThat(domainObject1).isNotEqualTo(domainObject2);
         // HashCodes are equals because the objects are not persisted yet
         assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
-    }
-
-    /**
-     * Create a {@link FormattingConversionService} which use ISO date format, instead of the localized one.
-     * @return the {@link FormattingConversionService}.
-     */
-    public static FormattingConversionService createFormattingConversionService() {
-        DefaultFormattingConversionService dfcs = new DefaultFormattingConversionService ();
-        DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
-        registrar.setUseIsoFormat(true);
-        registrar.registerFormatters(dfcs);
-        return dfcs;
     }
 
     /**

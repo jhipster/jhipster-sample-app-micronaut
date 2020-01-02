@@ -39,21 +39,21 @@ public class ClientForwardControllerIT {
         assertThat(response.body()).isEqualTo("test");
     }
 
-    @Test
-    public void getClientEndpoint() throws Exception {
-        HttpResponse response = client.exchange(HttpRequest.GET("/non-existant-mapping")).blockingFirst();
+//    @Test
+//    public void getClientEndpoint() throws Exception {
+//        HttpResponse response = client.exchange(HttpRequest.GET("/non-existant-mapping")).blockingFirst();
+//
+//        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+//        assertThat(response.header("Content-Type")).isEqualTo(MediaType.TEXT_HTML);
+//    }
 
-        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
-        assertThat(response.header("Content-Type")).isEqualTo(MediaType.TEXT_HTML);
-    }
-
-    @Test
-    public void getNestedClientEndpoint() throws Exception {
-        HttpResponse response = client.exchange(HttpRequest.GET("/admin/user-management")).blockingFirst();
-
-        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
-        assertThat(response.header("Content-Type")).isEqualTo(MediaType.TEXT_HTML);
-    }
+//    @Test
+//    public void getNestedClientEndpoint() throws Exception {
+//        HttpResponse response = client.exchange(HttpRequest.GET("/admin/user-management")).blockingFirst();
+//
+//        assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
+//        assertThat(response.header("Content-Type")).isEqualTo(MediaType.TEXT_HTML);
+//    }
 
     @Controller
     @Secured(SecurityRule.IS_ANONYMOUS)

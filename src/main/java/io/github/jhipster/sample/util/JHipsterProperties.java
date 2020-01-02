@@ -5,10 +5,17 @@ import io.micronaut.context.annotation.ConfigurationProperties;
 @ConfigurationProperties("jhipster")
 public class JHipsterProperties {
 
-    private final Cache cache = new Cache();
-    private final Mail mail = new Mail();
-    private final Logging logging = new Logging();
-    private final Metrics metrics = new Metrics();
+    private final Cache cache;
+    private final Mail mail;
+    private final Logging logging;
+    private final Metrics metrics;
+
+    public JHipsterProperties(Cache cache, Mail mail, Logging logging, Metrics metrics) {
+        this.cache = cache;
+        this.mail = mail;
+        this.logging = logging;
+        this.metrics = metrics;
+    }
 
     public Cache getCache() {
         return cache;

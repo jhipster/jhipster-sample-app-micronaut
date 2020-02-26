@@ -2,26 +2,26 @@ import { ComponentFixture, TestBed, async, inject, fakeAsync, tick } from '@angu
 import { HttpResponse } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { JhipsterSampleApplicationTestModule } from '../../../test.module';
-import { UserMgmtUpdateComponent } from 'app/admin/user-management/user-management-update.component';
-import { UserService, User, JhiLanguageHelper } from 'app/core';
+import { UserManagementUpdateComponent } from 'app/admin/user-management/user-management-update.component';
+import { UserService } from 'app/core/user/user.service';
+import { User } from 'app/core/user/user.model';
 
 describe('Component Tests', () => {
   describe('User Management Update Component', () => {
-    let comp: UserMgmtUpdateComponent;
-    let fixture: ComponentFixture<UserMgmtUpdateComponent>;
+    let comp: UserManagementUpdateComponent;
+    let fixture: ComponentFixture<UserManagementUpdateComponent>;
     let service: UserService;
-    let mockLanguageHelper: any;
-    const route = ({
-      data: of({ user: new User(1, 'user', 'first', 'last', 'first@last.com', true, 'en', ['ROLE_USER'], 'admin', null, null, null) })
+    const route: ActivatedRoute = ({
+      data: of({ user: new User(1, 'user', 'first', 'last', 'first@last.com', true, 'en', ['ROLE_USER'], 'admin') })
     } as any) as ActivatedRoute;
 
     beforeEach(async(() => {
       TestBed.configureTestingModule({
         imports: [JhipsterSampleApplicationTestModule],
-        declarations: [UserMgmtUpdateComponent],
+        declarations: [UserManagementUpdateComponent],
         providers: [
           FormBuilder,
           {
@@ -30,15 +30,14 @@ describe('Component Tests', () => {
           }
         ]
       })
-        .overrideTemplate(UserMgmtUpdateComponent, '')
+        .overrideTemplate(UserManagementUpdateComponent, '')
         .compileComponents();
     }));
 
     beforeEach(() => {
-      fixture = TestBed.createComponent(UserMgmtUpdateComponent);
+      fixture = TestBed.createComponent(UserManagementUpdateComponent);
       comp = fixture.componentInstance;
       service = fixture.debugElement.injector.get(UserService);
-      mockLanguageHelper = fixture.debugElement.injector.get(JhiLanguageHelper);
     });
 
     describe('OnInit', () => {
@@ -54,7 +53,6 @@ describe('Component Tests', () => {
           // THEN
           expect(service.authorities).toHaveBeenCalled();
           expect(comp.authorities).toEqual(['USER']);
-          expect(mockLanguageHelper.getAllSpy).toHaveBeenCalled();
         })
       ));
     });

@@ -15,15 +15,10 @@
     "searchEngine": false,
     "enableTranslation": true,
     "applicationType": "monolith",
-    "testFrameworks": [
-      "gatling",
-      "protractor"
-    ],
-    "languages": [
-      "en"
-    ],
+    "testFrameworks": ["gatling", "protractor"],
+    "languages": ["en"],
     "serverPort": 8080,
-    "jhipsterVersion": "6.0.1",
+    "jhipsterVersion": "6.7.1",
     "enableSocialSignIn": false,
     "useSass": true,
     "jhiPrefix": "jhi",
@@ -35,9 +30,22 @@
     "cacheProvider": "ehcache",
     "enableHibernateCache": true,
     "reactive": false,
-    "otherModules": [],
+    "otherModules": [
+      {
+        "name": "generator-jhipster-micronaut",
+        "version": "0.0.0"
+      }
+    ],
     "entitySuffix": "",
     "dtoSuffix": "DTO",
-    "clientTheme": "none"
+    "clientTheme": "none",
+    "embeddableLaunchScript": false,
+    "creationTimestamp": 1582746432223,
+    "blueprints": [
+      {
+        "name": "generator-jhipster-micronaut",
+        "version": "0.0.0"
+      }
+    ]
   }
 }

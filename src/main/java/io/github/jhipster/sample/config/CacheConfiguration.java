@@ -30,6 +30,8 @@ public class CacheConfiguration {
                 ResourcePoolsBuilder.heap(ehcache.getMaxEntries()))
                 .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(ehcache.getTimeToLiveSeconds())))
                 .build());
+
+        // TODO add caffiene configuration
     }
 
     @Singleton
@@ -46,14 +48,7 @@ public class CacheConfiguration {
         createCache(cm, io.github.jhipster.sample.domain.User.class.getName());
         createCache(cm, io.github.jhipster.sample.domain.Authority.class.getName());
         createCache(cm, io.github.jhipster.sample.domain.User.class.getName() + ".authorities");
-        createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName());
-        createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName() + ".operations");
-        createCache(cm, io.github.jhipster.sample.domain.Label.class.getName());
-        createCache(cm, io.github.jhipster.sample.domain.Label.class.getName() + ".operations");
-        createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName());
-        createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName() + ".labels");
         // jhipster-needle-ehcache-add-entry
-
     }
 
     private void createCache(javax.cache.CacheManager cm, String cacheName) {

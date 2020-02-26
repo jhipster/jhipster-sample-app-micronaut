@@ -10,31 +10,29 @@ import { SERVER_API_URL } from 'app/app.constants';
 export class AuthServerProvider {
   constructor(private http: HttpClient, private $localStorage: LocalStorageService, private $sessionStorage: SessionStorageService) {}
 
-  getToken() {
+  getToken(): any {
     return this.$localStorage.retrieve('authenticationToken') || this.$sessionStorage.retrieve('authenticationToken');
   }
 
-  login(credentials): Observable<any> {
+  login(credentials: any): Observable<any> {
     const data = {
       username: credentials.username,
       password: credentials.password,
       rememberMe: credentials.rememberMe
     };
-    return this.http.post(SERVER_API_URL + 'api/authenticate', data, { observe: 'response' }).pipe(map(authenticateSuccess.bind(this)));
 
-    function authenticateSuccess(resp: HttpResponse<any>) {
-      console.log(resp);
-      console.log(resp.body);
-      console.log(resp.body.access_token);
+    function authenticateSuccess(this: any, resp: HttpResponse<any>): any {
       const jwt = resp.body.access_token;
       if (jwt) {
         this.storeAuthenticationToken(jwt, credentials.rememberMe);
         return jwt;
       }
     }
+
+    return this.http.post(SERVER_API_URL + 'api/authenticate', data, { observe: 'response' }).pipe(map(authenticateSuccess.bind(this)));
   }
 
-  loginWithToken(jwt, rememberMe) {
+  loginWithToken(jwt: any, rememberMe: any): Promise<any> {
     if (jwt) {
       this.storeAuthenticationToken(jwt, rememberMe);
       return Promise.resolve(jwt);
@@ -43,7 +41,7 @@ export class AuthServerProvider {
     }
   }
 
-  storeAuthenticationToken(jwt, rememberMe) {
+  storeAuthenticationToken(jwt: any, rememberMe: any): void {
     if (rememberMe) {
       this.$localStorage.store('authenticationToken', jwt);
     } else {

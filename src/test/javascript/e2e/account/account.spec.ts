@@ -83,10 +83,10 @@ describe('account', () => {
     await passwordPage.setConfirmPassword('newpassword');
     await passwordPage.save();
 
-    const expect2 = 'password.messages.success';
+    const successMsg = 'password.messages.success';
     const alert = element(by.css('.alert-success'));
-    const value2 = await alert.getAttribute('jhiTranslate');
-    expect(value2).to.eq(expect2);
+    const alertValue = await alert.getAttribute('jhiTranslate');
+    expect(alertValue).to.eq(successMsg);
     await navBarPage.autoSignOut();
     await navBarPage.goToSignInPage();
     await signInPage.autoSignInUsing('admin', 'newpassword');
@@ -97,6 +97,22 @@ describe('account', () => {
     await passwordPage.setPassword('admin');
     await passwordPage.setConfirmPassword('admin');
     await passwordPage.save();
+
+    // wait for success message
+    const alertValue2 = await alert.getAttribute('jhiTranslate');
+    expect(alertValue2).to.eq(successMsg);
+  });
+
+  it('should navigate to 404 not found error page on non existing route and show user own navbar if valid authentication exists', async () => {
+    // don't sign out and refresh page with non existing route
+    await browser.get('/this-is-link-to-non-existing-page');
+
+    // should navigate to 404 not found page
+    const url = await browser.getCurrentUrl();
+    expect(url).to.endWith('404');
+
+    // as user is admin then should show admin menu to user
+    await navBarPage.clickOnAdminMenu();
   });
 
   after(async () => {

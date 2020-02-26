@@ -2,6 +2,7 @@ package io.github.jhipster.sample.web.rest;
 
 import io.github.jhipster.sample.domain.Authority;
 import io.github.jhipster.sample.domain.User;
+import io.github.jhipster.sample.repository.AuthorityRepository;
 import io.github.jhipster.sample.repository.UserRepository;
 import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.service.MailService;
@@ -64,6 +65,9 @@ public class UserResourceIT {
     private UserRepository userRepository;
 
     @Inject
+    AuthorityRepository authorityRepository;
+
+    @Inject
     private UserMapper userMapper;
 
     @Inject
@@ -93,6 +97,16 @@ public class UserResourceIT {
         user.setLogin(DEFAULT_LOGIN);
         user.setEmail(DEFAULT_EMAIL);
         userRepository.saveAndFlush(user);
+        List<Authority> authorities = authorityRepository.findAll();
+            if(authorities.isEmpty()) {
+                // Set up expected authorities, ADMIN and USER
+                Authority admin = new Authority();
+                admin.setName(AuthoritiesConstants.ADMIN);
+                authorityRepository.save(admin);
+                Authority user = new Authority();
+                user.setName(AuthoritiesConstants.USER);
+                authorityRepository.save(user);
+            }
     }
 
     @BeforeEach

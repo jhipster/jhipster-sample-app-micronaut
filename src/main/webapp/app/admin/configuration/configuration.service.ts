@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { SERVER_API_URL } from 'app/app.constants';
 
 @Injectable({ providedIn: 'root' })
-export class JhiConfigurationService {
+export class ConfigurationService {
   constructor(private http: HttpClient) {}
 
   get(): Observable<any> {

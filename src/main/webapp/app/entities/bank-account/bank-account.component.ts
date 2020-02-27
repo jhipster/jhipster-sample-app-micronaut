@@ -1,65 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IBankAccount } from 'app/shared/model/bank-account.model';
-import { AccountService } from 'app/core';
 import { BankAccountService } from './bank-account.service';
+import { BankAccountDeleteDialogComponent } from './bank-account-delete-dialog.component';
 
 @Component({
   selector: 'jhi-bank-account',
   templateUrl: './bank-account.component.html'
 })
 export class BankAccountComponent implements OnInit, OnDestroy {
-  bankAccounts: IBankAccount[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  bankAccounts?: IBankAccount[];
+  eventSubscriber?: Subscription;
 
   constructor(
     protected bankAccountService: BankAccountService,
-    protected jhiAlertService: JhiAlertService,
     protected eventManager: JhiEventManager,
-    protected accountService: AccountService
+    protected modalService: NgbModal
   ) {}
 
-  loadAll() {
-    this.bankAccountService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IBankAccount[]>) => res.ok),
-        map((res: HttpResponse<IBankAccount[]>) => res.body)
-      )
-      .subscribe(
-        (res: IBankAccount[]) => {
-          this.bankAccounts = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.bankAccountService.query().subscribe((res: HttpResponse<IBankAccount[]>) => (this.bankAccounts = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInBankAccounts();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: IBankAccount) {
-    return item.id;
+  trackId(index: number, item: IBankAccount): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInBankAccounts() {
-    this.eventSubscriber = this.eventManager.subscribe('bankAccountListModification', response => this.loadAll());
+  registerChangeInBankAccounts(): void {
+    this.eventSubscriber = this.eventManager.subscribe('bankAccountListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(bankAccount: IBankAccount): void {
+    const modalRef = this.modalService.open(BankAccountDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.bankAccount = bankAccount;
   }
 }

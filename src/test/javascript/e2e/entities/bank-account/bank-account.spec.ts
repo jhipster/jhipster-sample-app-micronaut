@@ -1,4 +1,3 @@
-/* tslint:disable no-unused-expression */
 import { browser, ExpectedConditions as ec, promise } from 'protractor';
 import { NavBarPage, SignInPage } from '../../page-objects/jhi-page-objects';
 
@@ -9,8 +8,8 @@ const expect = chai.expect;
 describe('BankAccount e2e test', () => {
   let navBarPage: NavBarPage;
   let signInPage: SignInPage;
-  let bankAccountUpdatePage: BankAccountUpdatePage;
   let bankAccountComponentsPage: BankAccountComponentsPage;
+  let bankAccountUpdatePage: BankAccountUpdatePage;
   let bankAccountDeleteDialog: BankAccountDeleteDialog;
 
   before(async () => {
@@ -26,6 +25,10 @@ describe('BankAccount e2e test', () => {
     bankAccountComponentsPage = new BankAccountComponentsPage();
     await browser.wait(ec.visibilityOf(bankAccountComponentsPage.title), 5000);
     expect(await bankAccountComponentsPage.getTitle()).to.eq('jhipsterSampleApplicationApp.bankAccount.home.title');
+    await browser.wait(
+      ec.or(ec.visibilityOf(bankAccountComponentsPage.entities), ec.visibilityOf(bankAccountComponentsPage.noResult)),
+      1000
+    );
   });
 
   it('should load create BankAccount page', async () => {
@@ -39,13 +42,16 @@ describe('BankAccount e2e test', () => {
     const nbButtonsBeforeCreate = await bankAccountComponentsPage.countDeleteButtons();
 
     await bankAccountComponentsPage.clickOnCreateButton();
+
     await promise.all([
       bankAccountUpdatePage.setNameInput('name'),
       bankAccountUpdatePage.setBalanceInput('5'),
       bankAccountUpdatePage.userSelectLastOption()
     ]);
+
     expect(await bankAccountUpdatePage.getNameInput()).to.eq('name', 'Expected Name value to be equals to name');
     expect(await bankAccountUpdatePage.getBalanceInput()).to.eq('5', 'Expected balance value to be equals to 5');
+
     await bankAccountUpdatePage.save();
     expect(await bankAccountUpdatePage.getSaveButton().isPresent(), 'Expected save button disappear').to.be.false;
 

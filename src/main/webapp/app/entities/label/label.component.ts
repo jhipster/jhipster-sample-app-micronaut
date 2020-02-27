@@ -1,65 +1,49 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ILabel } from 'app/shared/model/label.model';
-import { AccountService } from 'app/core';
 import { LabelService } from './label.service';
+import { LabelDeleteDialogComponent } from './label-delete-dialog.component';
 
 @Component({
   selector: 'jhi-label',
   templateUrl: './label.component.html'
 })
 export class LabelComponent implements OnInit, OnDestroy {
-  labels: ILabel[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  labels?: ILabel[];
+  eventSubscriber?: Subscription;
 
-  constructor(
-    protected labelService: LabelService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+  constructor(protected labelService: LabelService, protected eventManager: JhiEventManager, protected modalService: NgbModal) {}
 
-  loadAll() {
-    this.labelService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<ILabel[]>) => res.ok),
-        map((res: HttpResponse<ILabel[]>) => res.body)
-      )
-      .subscribe(
-        (res: ILabel[]) => {
-          this.labels = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.labelService.query().subscribe((res: HttpResponse<ILabel[]>) => (this.labels = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInLabels();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: ILabel) {
-    return item.id;
+  trackId(index: number, item: ILabel): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInLabels() {
-    this.eventSubscriber = this.eventManager.subscribe('labelListModification', response => this.loadAll());
+  registerChangeInLabels(): void {
+    this.eventSubscriber = this.eventManager.subscribe('labelListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(label: ILabel): void {
+    const modalRef = this.modalService.open(LabelDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.label = label;
   }
 }

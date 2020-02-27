@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { JhipsterSampleApplicationSharedModule } from 'app/shared';
-import {
-  OperationComponent,
-  OperationDetailComponent,
-  OperationUpdateComponent,
-  OperationDeletePopupComponent,
-  OperationDeleteDialogComponent,
-  operationRoute,
-  operationPopupRoute
-} from './';
-
-const ENTITY_STATES = [...operationRoute, ...operationPopupRoute];
+import { JhipsterSampleApplicationSharedModule } from 'app/shared/shared.module';
+import { OperationComponent } from './operation.component';
+import { OperationDetailComponent } from './operation-detail.component';
+import { OperationUpdateComponent } from './operation-update.component';
+import { OperationDeleteDialogComponent } from './operation-delete-dialog.component';
+import { operationRoute } from './operation.route';
 
 @NgModule({
-  imports: [JhipsterSampleApplicationSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    OperationComponent,
-    OperationDetailComponent,
-    OperationUpdateComponent,
-    OperationDeleteDialogComponent,
-    OperationDeletePopupComponent
-  ],
-  entryComponents: [OperationComponent, OperationUpdateComponent, OperationDeleteDialogComponent, OperationDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [JhipsterSampleApplicationSharedModule, RouterModule.forChild(operationRoute)],
+  declarations: [OperationComponent, OperationDetailComponent, OperationUpdateComponent, OperationDeleteDialogComponent],
+  entryComponents: [OperationDeleteDialogComponent]
 })
-export class JhipsterSampleApplicationOperationModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class JhipsterSampleApplicationOperationModule {}

@@ -1,6 +1,5 @@
 package io.github.jhipster.sample.repository;
 
-import io.github.jhipster.sample.domain.Operation;
 import io.github.jhipster.sample.domain.User;
 import io.micronaut.cache.annotation.Cacheable;
 import io.micronaut.configuration.hibernate.jpa.scope.CurrentSession;
@@ -18,7 +17,7 @@ import java.util.Optional;
 import java.time.Instant;
 
 /**
- * Spring Data JPA repository for the {@link User} entity.
+ * Micronaut Data JPA repository for the {@link User} entity.
  */
 @Repository
 public abstract class UserRepository implements JpaRepository<User, Long> {

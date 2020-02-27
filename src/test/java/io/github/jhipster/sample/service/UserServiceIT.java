@@ -1,6 +1,7 @@
 package io.github.jhipster.sample.service;
 
 import io.github.jhipster.sample.config.Constants;
+import io.github.jhipster.sample.domain.Authority;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.AuthorityRepository;
 import io.github.jhipster.sample.repository.UserRepository;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,6 +71,16 @@ public class UserServiceIT {
         user.setLastName(DEFAULT_LASTNAME);
         user.setImageUrl(DEFAULT_IMAGEURL);
         user.setLangKey(DEFAULT_LANGKEY);
+        List<Authority> authorities = authorityRepository.findAll();
+            if(authorities.isEmpty()) {
+                // Set up expected authorities, ADMIN and USER
+                Authority admin = new Authority();
+                admin.setName(AuthoritiesConstants.ADMIN);
+                authorityRepository.save(admin);
+                Authority user = new Authority();
+                user.setName(AuthoritiesConstants.USER);
+                authorityRepository.save(user);
+            }
     }
 
     @AfterEach

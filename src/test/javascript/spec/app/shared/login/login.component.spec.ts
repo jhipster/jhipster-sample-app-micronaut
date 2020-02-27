@@ -2,56 +2,47 @@ import { ComponentFixture, TestBed, async, inject, fakeAsync, tick } from '@angu
 import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { JhiEventManager } from 'ng-jhipster';
 
 import { LoginService } from 'app/core/login/login.service';
-import { JhiLoginModalComponent } from 'app/shared/login/login.component';
-import { StateStorageService } from 'app/core/auth/state-storage.service';
+import { LoginModalComponent } from 'app/shared/login/login.component';
 import { JhipsterSampleApplicationTestModule } from '../../../test.module';
 import { MockLoginService } from '../../../helpers/mock-login.service';
-import { MockStateStorageService } from '../../../helpers/mock-state-storage.service';
+import { MockRouter } from '../../../helpers/mock-route.service';
+import { MockActiveModal } from '../../../helpers/mock-active-modal.service';
 
 describe('Component Tests', () => {
   describe('LoginComponent', () => {
-    let comp: JhiLoginModalComponent;
-    let fixture: ComponentFixture<JhiLoginModalComponent>;
-    let mockLoginService: any;
-    let mockStateStorageService: any;
-    let mockRouter: any;
-    let mockEventManager: any;
-    let mockActiveModal: any;
+    let comp: LoginModalComponent;
+    let fixture: ComponentFixture<LoginModalComponent>;
+    let mockLoginService: MockLoginService;
+    let mockRouter: MockRouter;
+    let mockActiveModal: MockActiveModal;
 
     beforeEach(async(() => {
       TestBed.configureTestingModule({
         imports: [JhipsterSampleApplicationTestModule],
-        declarations: [JhiLoginModalComponent],
+        declarations: [LoginModalComponent],
         providers: [
           FormBuilder,
           {
             provide: LoginService,
             useClass: MockLoginService
-          },
-          {
-            provide: StateStorageService,
-            useClass: MockStateStorageService
           }
         ]
       })
-        .overrideTemplate(JhiLoginModalComponent, '')
+        .overrideTemplate(LoginModalComponent, '')
         .compileComponents();
     }));
 
     beforeEach(() => {
-      fixture = TestBed.createComponent(JhiLoginModalComponent);
+      fixture = TestBed.createComponent(LoginModalComponent);
       comp = fixture.componentInstance;
-      mockLoginService = fixture.debugElement.injector.get(LoginService);
-      mockStateStorageService = fixture.debugElement.injector.get(StateStorageService);
-      mockRouter = fixture.debugElement.injector.get(Router);
-      mockEventManager = fixture.debugElement.injector.get(JhiEventManager);
-      mockActiveModal = fixture.debugElement.injector.get(NgbActiveModal);
+      mockLoginService = TestBed.get(LoginService);
+      mockRouter = TestBed.get(Router);
+      mockActiveModal = TestBed.get(NgbActiveModal);
     });
 
-    it('should authenticate the user upon login when previous state was set', inject(
+    it('should authenticate the user', inject(
       [],
       fakeAsync(() => {
         // GIVEN
@@ -67,7 +58,7 @@ describe('Component Tests', () => {
           rememberMe: true
         });
         mockLoginService.setResponse({});
-        mockStateStorageService.setResponse('admin/users?page=0');
+        mockRouter.url = '/admin/metrics';
 
         // WHEN/
         comp.login();
@@ -75,50 +66,13 @@ describe('Component Tests', () => {
 
         // THEN
         expect(comp.authenticationError).toEqual(false);
-        expect(mockActiveModal.dismissSpy).toHaveBeenCalledWith('login success');
-        expect(mockEventManager.broadcastSpy).toHaveBeenCalledTimes(1);
+        expect(mockActiveModal.closeSpy).toHaveBeenCalled();
         expect(mockLoginService.loginSpy).toHaveBeenCalledWith(credentials);
-        expect(mockStateStorageService.getUrlSpy).toHaveBeenCalledTimes(1);
-        expect(mockStateStorageService.storeUrlSpy).toHaveBeenCalledWith(null);
-        expect(mockRouter.navigateByUrlSpy).toHaveBeenCalledWith('admin/users?page=0');
-      })
-    ));
-
-    it('should authenticate the user upon login when previous state was not set', inject(
-      [],
-      fakeAsync(() => {
-        // GIVEN
-        const credentials = {
-          username: 'admin',
-          password: 'admin',
-          rememberMe: true
-        };
-        comp.loginForm.patchValue({
-          username: 'admin',
-          password: 'admin',
-          rememberMe: true
-        });
-        mockLoginService.setResponse({});
-        mockStateStorageService.setResponse(null);
-
-        // WHEN
-        comp.login();
-        tick(); // simulate async
-
-        // THEN
-        expect(comp.authenticationError).toEqual(false);
-        expect(mockActiveModal.dismissSpy).toHaveBeenCalledWith('login success');
-        expect(mockEventManager.broadcastSpy).toHaveBeenCalledTimes(1);
-        expect(mockLoginService.loginSpy).toHaveBeenCalledWith(credentials);
-        expect(mockStateStorageService.getUrlSpy).toHaveBeenCalledTimes(1);
-        expect(mockStateStorageService.storeUrlSpy).not.toHaveBeenCalled();
-        expect(mockRouter.navigateSpy).not.toHaveBeenCalled();
       })
     ));
 
     it('should empty the credentials upon cancel', () => {
       // GIVEN
-
       comp.loginForm.patchValue({
         username: 'admin',
         password: 'admin'
@@ -127,7 +81,7 @@ describe('Component Tests', () => {
       const expected = {
         username: '',
         password: '',
-        rememberMe: true
+        rememberMe: false
       };
 
       // WHEN
@@ -135,9 +89,9 @@ describe('Component Tests', () => {
 
       // THEN
       expect(comp.authenticationError).toEqual(false);
-      expect(comp.loginForm.get('username').value).toEqual(expected.username);
-      expect(comp.loginForm.get('password').value).toEqual(expected.password);
-      expect(comp.loginForm.get('rememberMe').value).toEqual(expected.rememberMe);
+      expect(comp.loginForm.get('username')!.value).toEqual(expected.username);
+      expect(comp.loginForm.get('password')!.value).toEqual(expected.password);
+      expect(comp.loginForm.get('rememberMe')!.value).toEqual(expected.rememberMe);
       expect(mockActiveModal.dismissSpy).toHaveBeenCalledWith('cancel');
     });
 
@@ -147,7 +101,7 @@ describe('Component Tests', () => {
 
       // THEN
       expect(mockActiveModal.dismissSpy).toHaveBeenCalledWith('to state register');
-      expect(mockRouter.navigateSpy).toHaveBeenCalledWith(['/register']);
+      expect(mockRouter.navigateSpy).toHaveBeenCalledWith(['/account/register']);
     });
 
     it('should redirect user when request password', () => {
@@ -156,7 +110,7 @@ describe('Component Tests', () => {
 
       // THEN
       expect(mockActiveModal.dismissSpy).toHaveBeenCalledWith('to state requestReset');
-      expect(mockRouter.navigateSpy).toHaveBeenCalledWith(['/reset', 'request']);
+      expect(mockRouter.navigateSpy).toHaveBeenCalledWith(['/account/reset', 'request']);
     });
   });
 });

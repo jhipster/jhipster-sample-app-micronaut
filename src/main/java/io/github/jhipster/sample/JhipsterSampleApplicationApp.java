@@ -20,7 +20,7 @@ public class JhipsterSampleApplicationApp {
     private static final Logger log = LoggerFactory.getLogger(JhipsterSampleApplicationApp.class);
 
     /**
-     * Initializes jhipsterSampleApplication.
+     * Initializes JhipsterSampleApplicationApp.
      * <p>
      * Spring profiles can be configured with a program argument --spring.profiles.active=your-active-profile
      * <p>

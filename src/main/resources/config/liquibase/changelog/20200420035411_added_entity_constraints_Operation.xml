@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity Operation.
     -->
-    <changeSet id="20150805125054-2" author="jhipster">
+    <changeSet id="20200420035411-2" author="jhipster">
         
         <addForeignKeyConstraint baseColumnNames="bank_account_id"
                                  baseTableName="operation"

@@ -2,25 +2,28 @@ package io.github.jhipster.sample.web.rest;
 
 import io.github.jhipster.sample.domain.Operation;
 import io.github.jhipster.sample.repository.OperationRepository;
-import io.github.jhipster.sample.util.HeaderUtil;
-import io.github.jhipster.sample.util.PaginationUtil;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 
-import io.micronaut.context.annotation.Value;
-import io.micronaut.data.model.Page;
-import io.micronaut.data.model.Pageable;
+import io.github.jhipster.sample.util.HeaderUtil;
+import io.github.jhipster.sample.util.PaginationUtil;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.uri.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.micronaut.context.annotation.Value;
+import io.micronaut.data.model.Page;
+import io.micronaut.data.model.Pageable;
+
+
+
+
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +37,7 @@ public class OperationResource {
 
     private static final String ENTITY_NAME = "operation";
 
-    @Value("${jhipster.client-app.name}")
+    @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final OperationRepository operationRepository;
@@ -47,7 +50,7 @@ public class OperationResource {
      * {@code POST  /operations} : Create a new operation.
      *
      * @param operation the operation to create.
-     * @return the {@link io.micronaut.http.HttpResponse} with status {@code 201 (Created)} and with body the new operation, or with status {@code 400 (Bad Request)} if the operation has already an ID.
+     * @return the {@link HttpResponse} with status {@code 201 (Created)} and with body the new operation, or with status {@code 400 (Bad Request)} if the operation has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Post("/operations")
@@ -56,9 +59,8 @@ public class OperationResource {
         if (operation.getId() != null) {
             throw new BadRequestAlertException("A new operation cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Operation result = operationRepository.save(operation);
+        Operation result = operationRepository.mergeAndSave(operation);
         URI location = new URI("/api/operations/" + result.getId());
-
         return HttpResponse.created(result).headers(headers -> {
             headers.location(location);
             HeaderUtil.createEntityCreationAlert(headers, applicationName, true, ENTITY_NAME, result.getId().toString());
@@ -81,7 +83,6 @@ public class OperationResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         Operation result = operationRepository.mergeAndSave(operation);
-
         return HttpResponse.ok(result).headers(headers ->
             HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, operation.getId().toString()));
     }
@@ -93,7 +94,7 @@ public class OperationResource {
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of operations in body.
      */
-    @Get("/operations{?eagerload}")
+     @Get("/operations{?eagerload}")
     public HttpResponse<List<Operation>> getAllOperations(HttpRequest request, Pageable pageable, @Nullable Boolean eagerload) {
         log.debug("REST request to get a page of Operations");
         Page<Operation> page;
@@ -110,11 +111,12 @@ public class OperationResource {
      * {@code GET  /operations/:id} : get the "id" operation.
      *
      * @param id the id of the operation to retrieve.
-     * @return the {@link Operation} with status {@code 200 (OK)} and with body the operation, or with status {@code 404 (Not Found)}.
+     * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the operation, or with status {@code 404 (Not Found)}.
      */
     @Get("/operations/{id}")
     public Optional<Operation> getOperation(@PathVariable Long id) {
         log.debug("REST request to get Operation : {}", id);
+        
         return operationRepository.findOneWithEagerRelationships(id);
     }
 
@@ -128,8 +130,6 @@ public class OperationResource {
     public HttpResponse deleteOperation(@PathVariable Long id) {
         log.debug("REST request to delete Operation : {}", id);
         operationRepository.deleteById(id);
-
-        return HttpResponse.noContent().headers(headers ->
-            HeaderUtil.createEntityDeletionAlert(headers, applicationName, true, ENTITY_NAME, id.toString()));
+        return HttpResponse.noContent().headers(headers -> HeaderUtil.createEntityDeletionAlert(headers, applicationName, true, ENTITY_NAME, id.toString()));
     }
 }

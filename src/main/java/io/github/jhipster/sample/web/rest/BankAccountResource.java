@@ -2,17 +2,24 @@ package io.github.jhipster.sample.web.rest;
 
 import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.repository.BankAccountRepository;
-import io.github.jhipster.sample.util.HeaderUtil;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
+
+import io.github.jhipster.sample.util.HeaderUtil;
+import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
+import io.micronaut.http.uri.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import io.micronaut.context.annotation.Value;
 
+
+
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,10 +54,12 @@ public class BankAccountResource {
         if (bankAccount.getId() != null) {
             throw new BadRequestAlertException("A new bankAccount cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BankAccount result = bankAccountRepository.save(bankAccount);
-        return HttpResponse.<BankAccount>created(new URI("/api/bank-accounts/" + result.getId()))
-            .headers(headers -> HeaderUtil.createEntityCreationAlert(headers, applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+        BankAccount result = bankAccountRepository.mergeAndSave(bankAccount);
+        URI location = new URI("/api/bank-accounts/" + result.getId());
+        return HttpResponse.created(result).headers(headers -> {
+            headers.location(location);
+            HeaderUtil.createEntityCreationAlert(headers, applicationName, true, ENTITY_NAME, result.getId().toString());
+        });
     }
 
     /**
@@ -69,8 +78,8 @@ public class BankAccountResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         BankAccount result = bankAccountRepository.mergeAndSave(bankAccount);
-        return HttpResponse.ok(result)
-            .headers(headers -> HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, bankAccount.getId().toString()));
+        return HttpResponse.ok(result).headers(headers ->
+            HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, bankAccount.getId().toString()));
     }
 
     /**
@@ -78,8 +87,8 @@ public class BankAccountResource {
      *
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of bankAccounts in body.
      */
-    @Get("/bank-accounts")
-    public Iterable<BankAccount> getAllBankAccounts() {
+     @Get("/bank-accounts")
+    public Iterable<BankAccount> getAllBankAccounts(HttpRequest request) {
         log.debug("REST request to get all BankAccounts");
         return bankAccountRepository.findAll();
     }
@@ -93,6 +102,7 @@ public class BankAccountResource {
     @Get("/bank-accounts/{id}")
     public Optional<BankAccount> getBankAccount(@PathVariable Long id) {
         log.debug("REST request to get BankAccount : {}", id);
+        
         return bankAccountRepository.findById(id);
     }
 

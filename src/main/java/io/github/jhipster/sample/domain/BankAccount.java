@@ -1,7 +1,5 @@
 package io.github.jhipster.sample.domain;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -13,7 +11,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Objects;
 
 /**
  * A BankAccount.
@@ -58,12 +55,22 @@ public class BankAccount implements Serializable {
         return name;
     }
 
+    public BankAccount name(String name) {
+        this.name = name;
+        return this;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public BankAccount balance(BigDecimal balance) {
+        this.balance = balance;
+        return this;
     }
 
     public void setBalance(BigDecimal balance) {
@@ -74,12 +81,34 @@ public class BankAccount implements Serializable {
         return user;
     }
 
+    public BankAccount user(User user) {
+        this.user = user;
+        return this;
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
 
     public Set<Operation> getOperations() {
         return operations;
+    }
+
+    public BankAccount operations(Set<Operation> operations) {
+        this.operations = operations;
+        return this;
+    }
+
+    public BankAccount addOperation(Operation operation) {
+        this.operations.add(operation);
+        operation.setBankAccount(this);
+        return this;
+    }
+
+    public BankAccount removeOperation(Operation operation) {
+        this.operations.remove(operation);
+        operation.setBankAccount(null);
+        return this;
     }
 
     public void setOperations(Set<Operation> operations) {

@@ -1,8 +1,9 @@
 package io.github.jhipster.sample.web.rest;
 
-import io.github.jhipster.sample.domain.BankAccount;
+
 import io.github.jhipster.sample.domain.Label;
 import io.github.jhipster.sample.repository.LabelRepository;
+
 import io.micronaut.context.annotation.Property;
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
@@ -12,15 +13,19 @@ import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.annotation.MicronautTest;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 /**
  * Integration tests for the {@Link LabelResource} REST controller.
@@ -41,18 +46,6 @@ public class LabelResourceIT {
 
     private Label label;
 
-    /**
-     * Create an entity for this test.
-     *
-     * This is a static method, as tests for other entities might also need it,
-     * if they test an entity which requires the current entity.
-     */
-    public static Label createEntity() {
-        Label label = new Label();
-        label.setLabel(DEFAULT_LABEL);
-        return label;
-    }
-
     @BeforeEach
     public void initTest() {
         label = createEntity();
@@ -62,6 +55,19 @@ public class LabelResourceIT {
     public void cleanUpTest() {
         labelRepository.deleteAll();
     }
+
+    /**
+     * Create an entity for this test.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static Label createEntity() {
+        Label label = new Label()
+            .label(DEFAULT_LABEL);
+        return label;
+    }
+
 
     @Test
     public void createLabel() throws Exception {
@@ -76,6 +82,7 @@ public class LabelResourceIT {
         List<Label> labelList = labelRepository.findAll();
         assertThat(labelList).hasSize(databaseSizeBeforeCreate + 1);
         Label testLabel = labelList.get(labelList.size() - 1);
+
         assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
     }
 
@@ -105,6 +112,7 @@ public class LabelResourceIT {
         label.setLabel(null);
 
         // Create the Label, which fails.
+
         HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -119,21 +127,24 @@ public class LabelResourceIT {
         // Initialize the database
         labelRepository.saveAndFlush(label);
 
-        // Get all the labelList
-        List<Label> labels = client.retrieve(HttpRequest.GET("/api/labels?sort=id,desc"), Argument.listOf(Label.class)).blockingFirst();
+        // Get the labelList w/ all the labels
+        List<Label> labels = client.retrieve(HttpRequest.GET("/api/labels?eagerload=true"), Argument.listOf(Label.class)).blockingFirst();
+        Label testLabel = labels.get(0);
 
-        assertThat(labels.get(0).getLabel()).isEqualTo(DEFAULT_LABEL);
+
+        assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
     }
-
+    
     @Test
     public void getLabel() throws Exception {
         // Initialize the database
         labelRepository.saveAndFlush(label);
 
         // Get the label
-        Label label = client.retrieve(HttpRequest.GET("/api/labels/" + this.label.getId()), Label.class).blockingFirst();
+        Label testLabel = client.retrieve(HttpRequest.GET("/api/labels/" + this.label.getId()), Label.class).blockingFirst();
 
-        assertThat(label.getLabel()).isEqualTo(DEFAULT_LABEL);
+
+        assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
     }
 
     @Test
@@ -144,7 +155,7 @@ public class LabelResourceIT {
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
-
+    
     @Test
     public void updateLabel() throws Exception {
         // Initialize the database
@@ -154,10 +165,12 @@ public class LabelResourceIT {
 
         // Update the label
         Label updatedLabel = labelRepository.findById(label.getId()).get();
-        // Disconnect from session so that the updates on updatedLabel are not directly saved in db
-        updatedLabel.setLabel(UPDATED_LABEL);
 
-        HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/labels", updatedLabel), Label.class).onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
+        updatedLabel
+            .label(UPDATED_LABEL);
+
+        HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/labels", updatedLabel), Label.class)
+            .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.OK.getCode());
 
@@ -165,6 +178,7 @@ public class LabelResourceIT {
         List<Label> labelList = labelRepository.findAll();
         assertThat(labelList).hasSize(databaseSizeBeforeUpdate);
         Label testLabel = labelList.get(labelList.size() - 1);
+
         assertThat(testLabel.getLabel()).isEqualTo(UPDATED_LABEL);
     }
 
@@ -172,8 +186,10 @@ public class LabelResourceIT {
     public void updateNonExistingLabel() throws Exception {
         int databaseSizeBeforeUpdate = labelRepository.findAll().size();
 
+        // Create the Label
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/bank-accounts", label), Label.class)
+        HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/labels", label), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.BAD_REQUEST.getCode());
@@ -185,7 +201,7 @@ public class LabelResourceIT {
 
     @Test
     public void deleteLabel() throws Exception {
-        // Initialize the database
+        // Initialize the database with one entity
         labelRepository.saveAndFlush(label);
 
         int databaseSizeBeforeDelete = labelRepository.findAll().size();
@@ -194,7 +210,7 @@ public class LabelResourceIT {
         HttpResponse<Label> response = client.exchange(HttpRequest.DELETE("/api/labels/"+ label.getId()), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        // Validate the database is empty
+        // Validate the database is now empty
         List<Label> labelList = labelRepository.findAll();
         assertThat(labelList).hasSize(databaseSizeBeforeDelete - 1);
     }

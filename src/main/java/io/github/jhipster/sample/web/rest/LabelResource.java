@@ -2,19 +2,24 @@ package io.github.jhipster.sample.web.rest;
 
 import io.github.jhipster.sample.domain.Label;
 import io.github.jhipster.sample.repository.LabelRepository;
-import io.github.jhipster.sample.util.HeaderUtil;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 
+import io.github.jhipster.sample.util.HeaderUtil;
+import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
+import io.micronaut.http.uri.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import io.micronaut.context.annotation.Value;
 
+
+
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,7 +54,7 @@ public class LabelResource {
         if (label.getId() != null) {
             throw new BadRequestAlertException("A new label cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Label result = labelRepository.save(label);
+        Label result = labelRepository.mergeAndSave(label);
         URI location = new URI("/api/labels/" + result.getId());
         return HttpResponse.created(result).headers(headers -> {
             headers.location(location);
@@ -82,8 +87,8 @@ public class LabelResource {
      *
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of labels in body.
      */
-    @Get("/labels")
-    public Iterable<Label> getAllLabels() {
+     @Get("/labels")
+    public Iterable<Label> getAllLabels(HttpRequest request) {
         log.debug("REST request to get all Labels");
         return labelRepository.findAll();
     }
@@ -97,6 +102,7 @@ public class LabelResource {
     @Get("/labels/{id}")
     public Optional<Label> getLabel(@PathVariable Long id) {
         log.debug("REST request to get Label : {}", id);
+        
         return labelRepository.findById(id);
     }
 

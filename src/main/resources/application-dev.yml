@@ -1,5 +1,5 @@
 # ===================================================================
-# Spring Boot configuration for the "dev" profile.
+# Micronaut configuration for the "prod" environment.
 #
 # This configuration overrides the application.yml file.
 #
@@ -8,16 +8,17 @@
 # ===================================================================
 
 # ===================================================================
-# Standard Spring Boot properties.
+# Standard Micronaut configuration properties.
 # Full reference is available at:
-# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# https://docs.micronaut.io/latest/guide/configurationreference.html
 # ===================================================================
 
 datasources:
   default:
-    url: jdbc:h2:mem:jhipstersampleapplication;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: jhipsterSampleApplication
-    password: ''
+    url: ${JDBC_URL:`jdbc:h2:mem:jhipstersampleapplication;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
+    username: ${JDBC_USER:JhipsterSampleApplication}
+    password: ${JDBC_PASSWORD:""}
+    driverClassName: ${JDBC_DRIVER:org.h2.Driver}
     poolName: Hikari
     autoCommit: false
 
@@ -33,8 +34,11 @@ jpa:
     packages-to-scan: io.github.jhipster.sample.domain
     properties:
       hibernate:
+        javax:
+          cache:
+            missing_cache_strategy: create
         hbm2ddl:
-          auto: update
+          auto: none
         show_sql: true
         id:
           new_generator_mappings: true
@@ -114,7 +118,7 @@ jhipster:
       max-entries: 100 # Number of objects in each cache entry
 
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    from: jhipsterSampleApplication@localhost
+    from: JhipsterSampleApplication@localhost
     base-url: http://127.0.0.1:8080
   metrics:
     logs: # Reports metrics in the logs

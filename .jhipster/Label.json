@@ -1,7 +1,8 @@
 {
+    "fluentMethods": true,
+    "clientRootFolder": "",
     "relationships": [
         {
-            "relationshipId": 1,
             "relationshipName": "operation",
             "otherEntityName": "operation",
             "relationshipType": "many-to-many",
@@ -11,7 +12,6 @@
     ],
     "fields": [
         {
-            "fieldId": 1,
             "fieldName": "label",
             "fieldType": "String",
             "fieldValidateRules": [
@@ -21,7 +21,13 @@
             "fieldValidateRulesMinlength": "3"
         }
     ],
-    "changelogDate": "20150805124936",
+    "changelogDate": "20200420035207",
     "dto": "no",
+    "searchEngine": false,
+    "service": "no",
+    "entityTableName": "label",
+    "databaseType": "sql",
+    "readOnly": false,
+    "jpaMetamodelFiltering": false,
     "pagination": "no"
 }

@@ -1,14 +1,16 @@
 {
+    "fluentMethods": true,
+    "clientRootFolder": "",
     "relationships": [
         {
-            "relationshipId": 1,
             "relationshipName": "user",
             "otherEntityName": "user",
             "relationshipType": "many-to-one",
-            "otherEntityField": "login"
+            "otherEntityField": "login",
+            "ownerSide": true,
+            "otherEntityRelationshipName": "bankAccount"
         },
         {
-            "relationshipId": 2,
             "relationshipName": "operation",
             "otherEntityName": "operation",
             "relationshipType": "one-to-many",
@@ -17,7 +19,6 @@
     ],
     "fields": [
         {
-            "fieldId": 1,
             "fieldName": "name",
             "fieldType": "String",
             "fieldValidateRules": [
@@ -25,7 +26,6 @@
             ]
         },
         {
-            "fieldId": 2,
             "fieldName": "balance",
             "fieldType": "BigDecimal",
             "fieldValidateRules": [
@@ -33,7 +33,13 @@
             ]
         }
     ],
-    "changelogDate": "20150805124838",
+    "changelogDate": "20200420035043",
     "dto": "no",
+    "searchEngine": false,
+    "service": "no",
+    "entityTableName": "bank_account",
+    "databaseType": "sql",
+    "readOnly": false,
+    "jpaMetamodelFiltering": false,
     "pagination": "no"
 }

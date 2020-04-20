@@ -1,6 +1,5 @@
 package io.github.jhipster.sample.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -13,7 +12,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Objects;
 
 /**
  * A Operation.
@@ -30,7 +28,7 @@ public class Operation implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "jhi_date", nullable = false)
+    @Column(name = "date", nullable = false)
     private Instant date;
 
     @Column(name = "description")
@@ -64,12 +62,22 @@ public class Operation implements Serializable {
         return date;
     }
 
+    public Operation date(Instant date) {
+        this.date = date;
+        return this;
+    }
+
     public void setDate(Instant date) {
         this.date = date;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public Operation description(String description) {
+        this.description = description;
+        return this;
     }
 
     public void setDescription(String description) {
@@ -80,6 +88,11 @@ public class Operation implements Serializable {
         return amount;
     }
 
+    public Operation amount(BigDecimal amount) {
+        this.amount = amount;
+        return this;
+    }
+
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
@@ -88,12 +101,34 @@ public class Operation implements Serializable {
         return bankAccount;
     }
 
+    public Operation bankAccount(BankAccount bankAccount) {
+        this.bankAccount = bankAccount;
+        return this;
+    }
+
     public void setBankAccount(BankAccount bankAccount) {
         this.bankAccount = bankAccount;
     }
 
     public Set<Label> getLabels() {
         return labels;
+    }
+
+    public Operation labels(Set<Label> labels) {
+        this.labels = labels;
+        return this;
+    }
+
+    public Operation addLabel(Label label) {
+        this.labels.add(label);
+        label.getOperations().add(this);
+        return this;
+    }
+
+    public Operation removeLabel(Label label) {
+        this.labels.remove(label);
+        label.getOperations().remove(this);
+        return this;
     }
 
     public void setLabels(Set<Label> labels) {

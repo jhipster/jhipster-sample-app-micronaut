@@ -13,12 +13,11 @@ import io.micronaut.test.annotation.MockBean;
 import io.reactivex.Flowable;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;

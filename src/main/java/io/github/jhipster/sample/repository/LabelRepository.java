@@ -1,24 +1,27 @@
 package io.github.jhipster.sample.repository;
 
-import io.github.jhipster.sample.domain.BankAccount;
 import io.github.jhipster.sample.domain.Label;
-import io.micronaut.configuration.hibernate.jpa.scope.CurrentSession;
+
+
+import io.micronaut.data.annotation.Query;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
-import io.micronaut.spring.tx.annotation.Transactional;
+
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 
 /**
- * Micronaut Predator repository for the Label entity.
+ * Micronaut Data  repository for the Label entity.
  */
 @SuppressWarnings("unused")
 @Repository
 public abstract class LabelRepository implements JpaRepository<Label, Long> {
-
+    
     private EntityManager entityManager;
 
-    public LabelRepository(@CurrentSession EntityManager entityManager) {
+
+    public LabelRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -27,4 +30,5 @@ public abstract class LabelRepository implements JpaRepository<Label, Long> {
         label = entityManager.merge(label);
         return save(label);
     }
+
 }

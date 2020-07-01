@@ -12,7 +12,7 @@ describe('Service Tests', () => {
 
     beforeEach(() => {
       TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
+        imports: [HttpClientTestingModule],
       });
 
       expectedResult = null;
@@ -37,9 +37,9 @@ describe('Service Tests', () => {
         const angularConfig = {
           contexts: {
             angular: {
-              beans: ['test2']
-            }
-          }
+              beans: ['test2'],
+            },
+          },
         };
         service.get().subscribe((received: any) => {
           expectedResult = received;

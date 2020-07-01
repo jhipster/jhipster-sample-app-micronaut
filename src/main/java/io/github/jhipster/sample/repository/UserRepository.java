@@ -26,12 +26,14 @@ public abstract class UserRepository implements JpaRepository<User, Long> {
     public static String USERS_BY_LOGIN_CACHE = "usersByLogin";
 
     public static String USERS_BY_EMAIL_CACHE = "usersByEmail";
+    
 
     public abstract Optional<User> findOneByActivationKey(String activationKey);
 
     public abstract List<User> findAllByActivatedFalseAndCreatedDateBefore(Instant dateTime);
 
     public abstract Optional<User> findOneByResetKey(String resetKey);
+    
 
     public abstract Optional<User> findOneByEmailIgnoreCase(String email);
 

@@ -166,7 +166,7 @@ public class OperationResourceIT {
         assertThat(testOperation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertEquals(testOperation.getAmount().compareTo(DEFAULT_AMOUNT), 0);
     }
-    
+
     @Test
     public void getOperation() throws Exception {
         // Initialize the database
@@ -189,7 +189,7 @@ public class OperationResourceIT {
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
-    
+
     @Test
     public void updateOperation() throws Exception {
         // Initialize the database

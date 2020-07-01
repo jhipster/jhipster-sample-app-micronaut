@@ -4,6 +4,7 @@ import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router
 import { Observable, of, EMPTY } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 
+import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
 import { IOperation, Operation } from 'app/shared/model/operation.model';
 import { OperationService } from './operation.service';
@@ -38,45 +39,45 @@ export const operationRoute: Routes = [
     path: '',
     component: OperationComponent,
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     component: OperationDetailComponent,
     resolve: {
-      operation: OperationResolve
+      operation: OperationResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     component: OperationUpdateComponent,
     resolve: {
-      operation: OperationResolve
+      operation: OperationResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     component: OperationUpdateComponent,
     resolve: {
-      operation: OperationResolve
+      operation: OperationResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.operation.home.title',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];

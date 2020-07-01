@@ -1,45 +1,41 @@
 {
-    "fluentMethods": true,
-    "clientRootFolder": "",
-    "relationships": [
-        {
-            "relationshipName": "user",
-            "otherEntityName": "user",
-            "relationshipType": "many-to-one",
-            "otherEntityField": "login",
-            "ownerSide": true,
-            "otherEntityRelationshipName": "bankAccount"
-        },
-        {
-            "relationshipName": "operation",
-            "otherEntityName": "operation",
-            "relationshipType": "one-to-many",
-            "otherEntityRelationshipName": "bankAccount"
-        }
-    ],
-    "fields": [
-        {
-            "fieldName": "name",
-            "fieldType": "String",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "balance",
-            "fieldType": "BigDecimal",
-            "fieldValidateRules": [
-                "required"
-            ]
-        }
-    ],
-    "changelogDate": "20200420035043",
-    "dto": "no",
-    "searchEngine": false,
-    "service": "no",
-    "entityTableName": "bank_account",
-    "databaseType": "sql",
-    "readOnly": false,
-    "jpaMetamodelFiltering": false,
-    "pagination": "no"
+  "name": "BankAccount",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "balance",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "operation",
+      "otherEntityRelationshipName": "bankAccount",
+      "relationshipName": "operation"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "user",
+      "otherEntityRelationshipName": "bankAccount",
+      "relationshipName": "user",
+      "otherEntityField": "login"
+    }
+  ],
+  "changelogDate": "20200630231411",
+  "entityTableName": "bank_account",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": ["JhipsterSampleApplication"]
 }

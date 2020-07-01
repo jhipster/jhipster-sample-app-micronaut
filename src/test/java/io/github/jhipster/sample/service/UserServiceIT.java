@@ -87,7 +87,6 @@ public class UserServiceIT {
     public void cleanUp() {
         userRepository.deleteAll();
     }
-
     @Test
     public void assertThatUserMustExistToResetPassword() {
         userRepository.saveAndFlush(user);
@@ -167,7 +166,6 @@ public class UserServiceIT {
             .noneMatch(user -> Constants.ANONYMOUS_USER.equals(user.getLogin())))
             .isTrue();
     }
-
     @Test
     public void testRemoveNotActivatedUsers() {
         user.setActivated(false);

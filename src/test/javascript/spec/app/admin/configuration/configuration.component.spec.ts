@@ -15,7 +15,7 @@ describe('Component Tests', () => {
       TestBed.configureTestingModule({
         imports: [JhipsterSampleApplicationTestModule],
         declarations: [ConfigurationComponent],
-        providers: [ConfigurationService]
+        providers: [ConfigurationService],
       })
         .overrideTemplate(ConfigurationComponent, '')
         .compileComponents();

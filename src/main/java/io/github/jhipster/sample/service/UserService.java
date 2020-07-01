@@ -51,6 +51,7 @@ public class UserService {
         this.cacheManager = cacheManager;
     }
 
+
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
         return userRepository.findOneByActivationKey(key)
@@ -166,29 +167,6 @@ public class UserService {
     }
 
     /**
-     * Update basic information (first name, last name, email, language) for the current user.
-     *
-     * @param firstName first name of user.
-     * @param lastName  last name of user.
-     * @param email     email id of user.
-     * @param langKey   language key.
-     * @param imageUrl  image URL of user.
-     */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
-        SecurityUtils.getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                user.setEmail(email.toLowerCase());
-                user.setLangKey(langKey);
-                user.setImageUrl(imageUrl);
-                this.clearUserCaches(user);
-                log.debug("Changed Information for User: {}", user);
-            });
-    }
-
-    /**
      * Update all information for a specific user, and return the modified user.
      *
      * @param userDTO user to update.
@@ -241,8 +219,32 @@ public class UserService {
                 }
                 String encryptedPassword = passwordEncoder.encode(newPassword);
                 user.setPassword(encryptedPassword);
+                user = userRepository.mergeAndSave(user);
                 this.clearUserCaches(user);
                 log.debug("Changed password for User: {}", user);
+            });
+    }
+
+    /**
+     * Update basic information (first name, last name, email, language) for the current user.
+     *
+     * @param firstName first name of user.
+     * @param lastName  last name of user.
+     * @param email     email id of user.
+     * @param langKey   language key.
+     * @param imageUrl  image URL of user.
+     */
+    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
+        SecurityUtils.getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin)
+            .ifPresent(user -> {
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+                user.setEmail(email.toLowerCase());
+                user.setLangKey(langKey);
+                user.setImageUrl(imageUrl);
+                this.clearUserCaches(user);
+                log.debug("Changed Information for User: {}", user);
             });
     }
 

@@ -26,6 +26,7 @@ public class UserMapperIT {
     private static final String DEFAULT_LOGIN = "johndoe";
     private static final Long DEFAULT_ID = 1L;
 
+
     @Inject UserMapper userMapper;
 
     private User user;

@@ -47,6 +47,8 @@ public class JhipsterSampleApplicationApp {
         List<String> environments;
         if (System.getenv("MICRONAUT_ENVIRONMENTS") != null) {
             environments = Arrays.asList(System.getenv("MICRONAUT_ENVIRONMENTS").split(","));
+        } else if (System.getProperty("micronaut.environments") != null) {
+            environments = Arrays.asList(System.getProperty("micronaut.environments").split(","));
         } else {
             environments = DefaultProfileUtil.getDefaultEnvironments();
         }
@@ -71,9 +73,9 @@ public class JhipsterSampleApplicationApp {
 
         log.info("\n----------------------------------------------------------\n\t" +
                 "Application '{}' is running! Access URLs:\n\t" +
-                "Local: \t\t{}://localhost:{}\n\t" +
-                "External: \t{}://{}:{}\n\t" +
-                "Profile(s): \t{}\n----------------------------------------------------------",
+                "Local: \t\t\t{}://localhost:{}\n\t" +
+                "External: \t\t{}://{}:{}\n\t" +
+                "Environment(s): \t{}\n----------------------------------------------------------",
             application.getName().orElse(null),
             protocol,
             serverPort,

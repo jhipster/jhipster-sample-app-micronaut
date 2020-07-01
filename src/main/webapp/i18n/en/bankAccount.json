@@ -18,8 +18,8 @@
       },
       "name": "Name",
       "balance": "Balance",
-      "user": "User",
-      "operation": "Operation"
+      "operation": "Operation",
+      "user": "User"
     }
   }
 }

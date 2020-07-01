@@ -1,50 +1,47 @@
 {
-    "fluentMethods": true,
-    "clientRootFolder": "",
-    "relationships": [
-        {
-            "relationshipName": "bankAccount",
-            "otherEntityName": "bankAccount",
-            "relationshipType": "many-to-one",
-            "otherEntityField": "name",
-            "otherEntityRelationshipName": "operation"
-        },
-        {
-            "relationshipName": "label",
-            "otherEntityName": "label",
-            "relationshipType": "many-to-many",
-            "otherEntityField": "label",
-            "ownerSide": true,
-            "otherEntityRelationshipName": "operation"
-        }
-    ],
-    "fields": [
-        {
-            "fieldName": "date",
-            "fieldType": "Instant",
-            "fieldValidateRules": [
-                "required"
-            ]
-        },
-        {
-            "fieldName": "description",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "amount",
-            "fieldType": "BigDecimal",
-            "fieldValidateRules": [
-                "required"
-            ]
-        }
-    ],
-    "changelogDate": "20200420035411",
-    "dto": "no",
-    "searchEngine": false,
-    "service": "no",
-    "entityTableName": "operation",
-    "databaseType": "sql",
-    "readOnly": false,
-    "jpaMetamodelFiltering": false,
-    "pagination": "infinite-scroll"
+  "name": "Operation",
+  "fields": [
+    {
+      "fieldName": "date",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "label",
+      "otherEntityRelationshipName": "operation",
+      "relationshipName": "label",
+      "otherEntityField": "label",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "bankAccount",
+      "otherEntityRelationshipName": "operation",
+      "relationshipName": "bankAccount",
+      "otherEntityField": "name"
+    }
+  ],
+  "changelogDate": "20200630231611",
+  "entityTableName": "operation",
+  "dto": "no",
+  "pagination": "infinite-scroll",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "clientRootFolder": "",
+  "applications": ["JhipsterSampleApplication"]
 }

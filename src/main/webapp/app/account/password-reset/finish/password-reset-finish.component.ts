@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Renderer, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { PasswordResetFinishService } from './password-reset-finish.service';
 
 @Component({
   selector: 'jhi-password-reset-finish',
-  templateUrl: './password-reset-finish.component.html'
+  templateUrl: './password-reset-finish.component.html',
 })
 export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
   @ViewChild('newPassword', { static: false })
@@ -21,14 +21,13 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
 
   passwordForm = this.fb.group({
     newPassword: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
-    confirmPassword: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]]
+    confirmPassword: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
   });
 
   constructor(
     private passwordResetFinishService: PasswordResetFinishService,
     private loginModalService: LoginModalService,
     private route: ActivatedRoute,
-    private renderer: Renderer,
     private fb: FormBuilder
   ) {}
 
@@ -43,7 +42,7 @@ export class PasswordResetFinishComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.newPassword) {
-      this.renderer.invokeElementMethod(this.newPassword.nativeElement, 'focus', []);
+      this.newPassword.nativeElement.focus();
     }
   }
 

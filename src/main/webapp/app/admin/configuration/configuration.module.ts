@@ -10,6 +10,6 @@ import { KeyStartsWith } from './configuration.filter';
 
 @NgModule({
   imports: [JhipsterSampleApplicationSharedModule, RouterModule.forChild([configurationRoute])],
-  declarations: [ConfigurationComponent, KeyStartsWith]
+  declarations: [ConfigurationComponent, KeyStartsWith],
 })
 export class ConfigurationModule {}

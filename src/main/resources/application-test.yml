@@ -16,6 +16,10 @@ jpa:
         hbm2ddl:
           auto: create-drop
 
+micronaut:
+  security:
+    enabled: true
+
 jhipster:
   clientApp:
     name: 'jhipsterSampleApplicationApp'
@@ -31,13 +35,6 @@ jhipster:
   mail:
     from: test@localhost
     base-url: http://127.0.0.1:8080
-  security:
-    authentication:
-      jwt:
-        # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-        base64-secret: ZWY4NjFkMWEwZDU0Y2M3N2Q5YmY0M2Q1NDNlZjc5ODg3MzBkZjkyMWQ0MTg2YmQ2MmU2MGM4NzY2NGVhYjMxODdjOTM3YjYyNjU1NmI1N2VkNTQ2OWVjNTEzMTUwNmNhNDRmZDI1OTlkMWJlZmZjOGM5YTMzODc0NWEwMGRhOWE=
-        # Token is valid 24 hours
-        token-validity-in-seconds: 86400
   metrics:
     logs: # Reports metrics in the logs
       enabled: true

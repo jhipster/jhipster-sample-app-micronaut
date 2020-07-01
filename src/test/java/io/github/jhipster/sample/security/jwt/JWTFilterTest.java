@@ -46,7 +46,7 @@ public class JWTFilterTest {
 
         String username = client.retrieve(HttpRequest.GET("/api/test").bearerAuth(jwt)).blockingFirst();
 
-        assertThat(username.equals("test-user"));
+        assertThat(username).isEqualTo("test-user");
     }
 
     @Test
@@ -56,7 +56,7 @@ public class JWTFilterTest {
         HttpResponse<String> username = client.exchange(HttpRequest.GET("/api/test").bearerAuth(jwt), String.class)
             .onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        assertThat(username.code() == HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(username.code()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class JWTFilterTest {
         HttpResponse<String> username = client.exchange(HttpRequest.GET("/api/test"), String.class)
             .onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        assertThat(username.code() == HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(username.code()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
     }
 
     @Test
@@ -72,7 +72,7 @@ public class JWTFilterTest {
         HttpResponse<String> username = client.exchange(HttpRequest.GET("/api/test").bearerAuth(""), String.class)
             .onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        assertThat(username.code() == HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(username.code()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class JWTFilterTest {
         HttpResponse<String> username = client.exchange(HttpRequest.GET("/api/test").basicAuth("test-user", "test-password"), String.class)
             .onErrorReturn(t -> (HttpResponse<String>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        assertThat(username.code() == HttpStatus.UNAUTHORIZED.getCode());
+        assertThat(username.code()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
     }
 
     @Controller("/api")

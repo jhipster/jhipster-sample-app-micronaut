@@ -109,6 +109,11 @@ public class UserResourceIT {
             }
     }
 
+    @AfterAll
+    public void cleanupTest() {
+        userRepository.deleteAll();
+    }
+
     @BeforeEach
     public void setup() {
         cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE).invalidateAll();
@@ -456,7 +461,7 @@ public class UserResourceIT {
         User user1 = new User();
         user1.setId(1L);
         User user2 = new User();
-        user2.setId(user1.getId());
+        user2.setId(1L);
         assertThat(user1).isEqualTo(user2);
         user2.setId(2L);
         assertThat(user1).isNotEqualTo(user2);

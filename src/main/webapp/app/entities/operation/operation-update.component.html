@@ -51,17 +51,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-control-label" jhiTranslate="jhipsterSampleApplicationApp.operation.bankAccount" for="field_bankAccount">Bank Account</label>
-                    <select class="form-control" id="field_bankAccount" name="bankAccount" formControlName="bankAccount">
-                        <option [ngValue]="null"></option>
-                        <option [ngValue]="bankAccountOption.id === editForm.get('bankAccount')!.value?.id ? editForm.get('bankAccount')!.value : bankAccountOption" *ngFor="let bankAccountOption of bankaccounts; trackBy: trackById">{{ bankAccountOption.name }}</option>
+                    <label jhiTranslate="jhipsterSampleApplicationApp.operation.label" for="field_labels">Label</label>
+                    <select class="form-control" id="field_labels" multiple name="labels" formControlName="labels">
+                        <option [ngValue]="getSelected(editForm.get('labels')!.value, labelOption)" *ngFor="let labelOption of labels; trackBy: trackById">{{ labelOption.label }}</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label jhiTranslate="jhipsterSampleApplicationApp.operation.label" for="field_labels">Label</label>
-                    <select class="form-control" id="field_labels" multiple name="labels" formControlName="labels">
-                        <option [ngValue]="getSelected(editForm.get('labels')!.value, labelOption)" *ngFor="let labelOption of labels; trackBy: trackById">{{ labelOption.label }}</option>
+                    <label class="form-control-label" jhiTranslate="jhipsterSampleApplicationApp.operation.bankAccount" for="field_bankAccount">Bank Account</label>
+                    <select class="form-control" id="field_bankAccount" name="bankAccount" formControlName="bankAccount">
+                        <option [ngValue]="null"></option>
+                        <option [ngValue]="bankAccountOption.id === editForm.get('bankAccount')!.value?.id ? editForm.get('bankAccount')!.value : bankAccountOption" *ngFor="let bankAccountOption of bankaccounts; trackBy: trackById">{{ bankAccountOption.name }}</option>
                     </select>
                 </div>
             </div>

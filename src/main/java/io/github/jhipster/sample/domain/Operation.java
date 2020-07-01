@@ -38,16 +38,16 @@ public class Operation implements Serializable {
     @Column(name = "amount", precision = 21, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @ManyToOne
-    @JsonIgnoreProperties("operations")
-    private BankAccount bankAccount;
-
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "operation_label",
                joinColumns = @JoinColumn(name = "operation_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "label_id", referencedColumnName = "id"))
     private Set<Label> labels = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties("operations")
+    private BankAccount bankAccount;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -97,19 +97,6 @@ public class Operation implements Serializable {
         this.amount = amount;
     }
 
-    public BankAccount getBankAccount() {
-        return bankAccount;
-    }
-
-    public Operation bankAccount(BankAccount bankAccount) {
-        this.bankAccount = bankAccount;
-        return this;
-    }
-
-    public void setBankAccount(BankAccount bankAccount) {
-        this.bankAccount = bankAccount;
-    }
-
     public Set<Label> getLabels() {
         return labels;
     }
@@ -133,6 +120,19 @@ public class Operation implements Serializable {
 
     public void setLabels(Set<Label> labels) {
         this.labels = labels;
+    }
+
+    public BankAccount getBankAccount() {
+        return bankAccount;
+    }
+
+    public Operation bankAccount(BankAccount bankAccount) {
+        this.bankAccount = bankAccount;
+        return this;
+    }
+
+    public void setBankAccount(BankAccount bankAccount) {
+        this.bankAccount = bankAccount;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

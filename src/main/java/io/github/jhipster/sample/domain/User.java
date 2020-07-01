@@ -32,7 +32,6 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,6 +41,7 @@ public class User implements Serializable {
     @Size(min = 1, max = 50)
     @Column(length = 50, unique = true, nullable = false)
     private String login;
+
 
     @JsonIgnore
     @NotNull
@@ -73,6 +73,7 @@ public class User implements Serializable {
     @Size(max = 256)
     @Column(name = "image_url", length = 256)
     private String imageUrl;
+
 
     @Size(max = 20)
     @Column(name = "activation_key", length = 20)
@@ -122,6 +123,7 @@ public class User implements Serializable {
         this.login = StringUtils.lowerCase(login, Locale.ENGLISH);
     }
 
+
     public String getPassword() {
         return password;
     }
@@ -169,6 +171,7 @@ public class User implements Serializable {
     public void setActivated(boolean activated) {
         this.activated = activated;
     }
+
 
     public String getActivationKey() {
         return activationKey;

@@ -158,7 +158,7 @@ public class BankAccountResourceIT {
         assertThat(testBankAccount.getName()).isEqualTo(DEFAULT_NAME);
         assertEquals(testBankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
     }
-    
+
     @Test
     public void getBankAccount() throws Exception {
         // Initialize the database
@@ -180,7 +180,7 @@ public class BankAccountResourceIT {
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
-    
+
     @Test
     public void updateBankAccount() throws Exception {
         // Initialize the database

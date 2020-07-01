@@ -3,16 +3,12 @@
 #
 # This configuration overrides the application.yml file.
 #
-# More information on profiles: https://www.jhipster.tech/profiles/
-# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
-
-# ===================================================================
-# Standard Micronaut configuration properties.
-# Full reference is available at:
+# Full Micronaut configuration reference is available at:
 # https://docs.micronaut.io/latest/guide/configurationreference.html
+#
+# More information on JHipster configuration properties:
+# https://www.jhipster.tech/common-application-properties/
 # ===================================================================
-
 logging:
   level:
     ROOT: INFO
@@ -24,13 +20,14 @@ management:
     export:
       prometheus:
         enabled: false
+
 datasources:
   default:
     type: com.zaxxer.hikari.HikariDataSource
-    url: '${JDBC_URL:`jdbc:mysql://localhost:3306/JhipsterSampleApplication?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true`}'
-    driverClassName: ${JDBC_DRIVER:com.mysql.jdbc.Driver}
-    username: ${JDBC_USER:JhipsterSampleApplication}
-    password: ${JDBC_PASSWORD:""}
+    url: 'jdbc:mysql://localhost:3306/JhipsterSampleApplication?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true'
+    username: 'root'
+    password: ''
+    driverClassName: 'com.mysql.jdbc.Driver'
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -50,6 +47,7 @@ jpa:
   database: MYSQL
   show-sql: false
   properties:
+    hibernate.javax.cache.missing_cache_strategy: create
     hibernate.id.new_generator_mappings: true
     hibernate.connection.provider_disables_autocommit: true
     hibernate.cache.use_second_level_cache: true
@@ -104,7 +102,8 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: 'bXktc2VjcmV0LWtleS13aGljaC1zaG91bGQtYmUtY2hhbmdlZC1pbi1wcm9kdWN0aW9uLWFuZC1iZS1iYXNlNjQtZW5jb2RlZAo='
+              # As this is the PRODUCTION configuration, you must securely supply the application with a secret.
+              # secret:
               base64: true
               jws-algorithm: HS512
 

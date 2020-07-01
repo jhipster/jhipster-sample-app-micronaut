@@ -1,14 +1,14 @@
 import { Moment } from 'moment';
-import { IBankAccount } from 'app/shared/model/bank-account.model';
 import { ILabel } from 'app/shared/model/label.model';
+import { IBankAccount } from 'app/shared/model/bank-account.model';
 
 export interface IOperation {
   id?: number;
   date?: Moment;
   description?: string;
   amount?: number;
-  bankAccount?: IBankAccount;
   labels?: ILabel[];
+  bankAccount?: IBankAccount;
 }
 
 export class Operation implements IOperation {
@@ -17,7 +17,7 @@ export class Operation implements IOperation {
     public date?: Moment,
     public description?: string,
     public amount?: number,
-    public bankAccount?: IBankAccount,
-    public labels?: ILabel[]
+    public labels?: ILabel[],
+    public bankAccount?: IBankAccount
   ) {}
 }

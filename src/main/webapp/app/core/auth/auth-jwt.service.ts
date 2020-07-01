@@ -18,7 +18,7 @@ export class AuthServerProvider {
     const data = {
       username: credentials.username,
       password: credentials.password,
-      rememberMe: credentials.rememberMe
+      rememberMe: credentials.rememberMe,
     };
 
     function authenticateSuccess(this: any, resp: HttpResponse<any>): any {

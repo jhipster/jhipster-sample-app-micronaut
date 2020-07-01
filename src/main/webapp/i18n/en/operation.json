@@ -19,8 +19,8 @@
       "date": "Date",
       "description": "Description",
       "amount": "Amount",
-      "bankAccount": "Bank Account",
-      "label": "Label"
+      "label": "Label",
+      "bankAccount": "Bank Account"
     }
   }
 }

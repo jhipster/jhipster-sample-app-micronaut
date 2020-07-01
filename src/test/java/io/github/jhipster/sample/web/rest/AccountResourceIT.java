@@ -115,7 +115,6 @@ public class AccountResourceIT {
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getCode());
     }
 
-
     @Test
     public void testRegisterValid()  {
         ManagedUserVM validUser = new ManagedUserVM();

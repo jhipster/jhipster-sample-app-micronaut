@@ -34,13 +34,13 @@ public class BankAccount implements Serializable {
     @Column(name = "balance", precision = 21, scale = 2, nullable = false)
     private BigDecimal balance;
 
-    @ManyToOne
-    @JsonIgnoreProperties("bankAccounts")
-    private User user;
-
     @OneToMany(mappedBy = "bankAccount")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     private Set<Operation> operations = new HashSet<>();
+
+    @ManyToOne
+    @JsonIgnoreProperties("bankAccounts")
+    private User user;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -77,19 +77,6 @@ public class BankAccount implements Serializable {
         this.balance = balance;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public BankAccount user(User user) {
-        this.user = user;
-        return this;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public Set<Operation> getOperations() {
         return operations;
     }
@@ -113,6 +100,19 @@ public class BankAccount implements Serializable {
 
     public void setOperations(Set<Operation> operations) {
         this.operations = operations;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public BankAccount user(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 

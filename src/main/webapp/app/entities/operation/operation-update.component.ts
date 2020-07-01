@@ -9,35 +9,35 @@ import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
 
 import { IOperation, Operation } from 'app/shared/model/operation.model';
 import { OperationService } from './operation.service';
-import { IBankAccount } from 'app/shared/model/bank-account.model';
-import { BankAccountService } from 'app/entities/bank-account/bank-account.service';
 import { ILabel } from 'app/shared/model/label.model';
 import { LabelService } from 'app/entities/label/label.service';
+import { IBankAccount } from 'app/shared/model/bank-account.model';
+import { BankAccountService } from 'app/entities/bank-account/bank-account.service';
 
-type SelectableEntity = IBankAccount | ILabel;
+type SelectableEntity = ILabel | IBankAccount;
 
 @Component({
   selector: 'jhi-operation-update',
-  templateUrl: './operation-update.component.html'
+  templateUrl: './operation-update.component.html',
 })
 export class OperationUpdateComponent implements OnInit {
   isSaving = false;
-  bankaccounts: IBankAccount[] = [];
   labels: ILabel[] = [];
+  bankaccounts: IBankAccount[] = [];
 
   editForm = this.fb.group({
     id: [],
     date: [null, [Validators.required]],
     description: [],
     amount: [null, [Validators.required]],
+    labels: [],
     bankAccount: [],
-    labels: []
   });
 
   constructor(
     protected operationService: OperationService,
-    protected bankAccountService: BankAccountService,
     protected labelService: LabelService,
+    protected bankAccountService: BankAccountService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
@@ -51,9 +51,9 @@ export class OperationUpdateComponent implements OnInit {
 
       this.updateForm(operation);
 
-      this.bankAccountService.query().subscribe((res: HttpResponse<IBankAccount[]>) => (this.bankaccounts = res.body || []));
-
       this.labelService.query().subscribe((res: HttpResponse<ILabel[]>) => (this.labels = res.body || []));
+
+      this.bankAccountService.query().subscribe((res: HttpResponse<IBankAccount[]>) => (this.bankaccounts = res.body || []));
     });
   }
 
@@ -63,8 +63,8 @@ export class OperationUpdateComponent implements OnInit {
       date: operation.date ? operation.date.format(DATE_TIME_FORMAT) : null,
       description: operation.description,
       amount: operation.amount,
+      labels: operation.labels,
       bankAccount: operation.bankAccount,
-      labels: operation.labels
     });
   }
 
@@ -89,8 +89,8 @@ export class OperationUpdateComponent implements OnInit {
       date: this.editForm.get(['date'])!.value ? moment(this.editForm.get(['date'])!.value, DATE_TIME_FORMAT) : undefined,
       description: this.editForm.get(['description'])!.value,
       amount: this.editForm.get(['amount'])!.value,
+      labels: this.editForm.get(['labels'])!.value,
       bankAccount: this.editForm.get(['bankAccount'])!.value,
-      labels: this.editForm.get(['labels'])!.value
     };
   }
 

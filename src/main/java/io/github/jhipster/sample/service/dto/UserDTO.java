@@ -15,10 +15,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A DTO representing a user, with his authorities.
+ * A DTO representing a user, with their authorities.
  */
 @Introspected
-public class UserDTO {
+public class UserDTO  {
 
     private Long id;
 

@@ -4,6 +4,7 @@ import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router
 import { Observable, of, EMPTY } from 'rxjs';
 import { flatMap } from 'rxjs/operators';
 
+import { Authority } from 'app/shared/constants/authority.constants';
 import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
 import { IBankAccount, BankAccount } from 'app/shared/model/bank-account.model';
 import { BankAccountService } from './bank-account.service';
@@ -38,45 +39,45 @@ export const bankAccountRoute: Routes = [
     path: '',
     component: BankAccountComponent,
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     component: BankAccountDetailComponent,
     resolve: {
-      bankAccount: BankAccountResolve
+      bankAccount: BankAccountResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     component: BankAccountUpdateComponent,
     resolve: {
-      bankAccount: BankAccountResolve
+      bankAccount: BankAccountResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     component: BankAccountUpdateComponent,
     resolve: {
-      bankAccount: BankAccountResolve
+      bankAccount: BankAccountResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'jhipsterSampleApplicationApp.bankAccount.home.title',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];

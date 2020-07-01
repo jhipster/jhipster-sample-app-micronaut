@@ -8,10 +8,13 @@ import java.util.Properties;
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
+
 import org.ehcache.config.builders.*;
 import org.ehcache.jsr107.Eh107Configuration;
-
 import org.ehcache.jsr107.EhcacheCachingProvider;
+
+import org.hibernate.cache.jcache.ConfigSettings;
+
 
 import javax.cache.CacheManager;
 import javax.inject.Singleton;
@@ -30,8 +33,6 @@ public class CacheConfiguration {
                 ResourcePoolsBuilder.heap(ehcache.getMaxEntries()))
                 .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(ehcache.getTimeToLiveSeconds())))
                 .build());
-
-        // TODO add caffiene configuration
     }
 
     @Singleton
@@ -49,10 +50,10 @@ public class CacheConfiguration {
         createCache(cm, io.github.jhipster.sample.domain.Authority.class.getName());
         createCache(cm, io.github.jhipster.sample.domain.User.class.getName() + ".authorities");
         createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName());
-        createCache(cm, io.github.jhipster.sample.domain.Label.class.getName());
-        createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName());
         createCache(cm, io.github.jhipster.sample.domain.BankAccount.class.getName() + ".operations");
+        createCache(cm, io.github.jhipster.sample.domain.Label.class.getName());
         createCache(cm, io.github.jhipster.sample.domain.Label.class.getName() + ".operations");
+        createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName());
         createCache(cm, io.github.jhipster.sample.domain.Operation.class.getName() + ".labels");
         // jhipster-needle-ehcache-add-entry
     }

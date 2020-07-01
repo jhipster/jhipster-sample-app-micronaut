@@ -134,7 +134,7 @@ public class LabelResourceIT {
 
         assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
     }
-    
+
     @Test
     public void getLabel() throws Exception {
         // Initialize the database
@@ -155,7 +155,7 @@ public class LabelResourceIT {
 
         assertThat(response.status().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
-    
+
     @Test
     public void updateLabel() throws Exception {
         // Initialize the database

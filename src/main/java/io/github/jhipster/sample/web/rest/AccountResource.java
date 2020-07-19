@@ -15,6 +15,8 @@ import io.github.jhipster.sample.web.rest.vm.ManagedUserVM;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,7 @@ public class AccountResource {
      */
     @Post("/register")
     @Status(HttpStatus.CREATED)
+    @ExecuteOn(TaskExecutors.IO)
     public void registerAccount(@Valid @Body ManagedUserVM managedUserVM) {
         if (!checkPasswordLength(managedUserVM.getPassword())) {
             throw new InvalidPasswordException();
@@ -78,6 +81,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be activated.
      */
     @Get("/activate{?key}")
+    @ExecuteOn(TaskExecutors.IO)
     public void activateAccount(@Nullable @QueryValue String key) {
         Optional<User> user = userService.activateRegistration(key);
         if (!user.isPresent()) {
@@ -92,6 +96,7 @@ public class AccountResource {
      * @return the login if the user is authenticated.
      */
     @Get("/authenticate")
+    @ExecuteOn(TaskExecutors.IO)
     public Optional<String> isAuthenticated(HttpRequest<?> request) {
         log.debug("REST request to check if the current user is authenticated");
         return request.getUserPrincipal().map(Principal::getName);
@@ -104,6 +109,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
     @Get("/account")
+    @ExecuteOn(TaskExecutors.IO)
     public UserDTO getAccount() {
         return userService.getUserWithAuthorities()
             .map(UserDTO::new)
@@ -118,6 +124,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
      */
     @Post("/account")
+    @ExecuteOn(TaskExecutors.IO)
     public void saveAccount(@Valid @Body UserDTO userDTO) {
         String userLogin = userService.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
@@ -139,6 +146,7 @@ public class AccountResource {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
     @Post("/account/change-password")
+    @ExecuteOn(TaskExecutors.IO)
     public void changePassword(@Body PasswordChangeDTO passwordChangeDto) {
         if (!checkPasswordLength(passwordChangeDto.getNewPassword())) {
             throw new InvalidPasswordException();
@@ -153,6 +161,7 @@ public class AccountResource {
      * @throws EmailNotFoundException {@code 400 (Bad Request)} if the email address is not registered.
      */
     @Post("/account/reset-password/init")
+    @ExecuteOn(TaskExecutors.IO)
     public void requestPasswordReset(@Body String mail) {
         mailService.sendPasswordResetMail(
            userService.requestPasswordReset(mail)
@@ -168,6 +177,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the password could not be reset.
      */
     @Post("/account/reset-password/finish")
+    @ExecuteOn(TaskExecutors.IO)
     public void finishPasswordReset(@Body KeyAndPasswordVM keyAndPassword) {
         if (!checkPasswordLength(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();

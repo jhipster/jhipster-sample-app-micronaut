@@ -6,13 +6,16 @@ import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.sample.util.HeaderUtil;
 import io.github.jhipster.sample.util.PaginationUtil;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.uri.UriBuilder;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.micronaut.context.annotation.Value;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.transaction.annotation.ReadOnly;
@@ -22,7 +25,6 @@ import io.micronaut.transaction.annotation.ReadOnly;
 
 
 import javax.annotation.Nullable;
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -55,7 +57,8 @@ public class OperationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Post("/operations")
-    public HttpResponse<Operation> createOperation(@Valid @Body Operation operation) throws URISyntaxException {
+    @ExecuteOn(TaskExecutors.IO)
+    public HttpResponse<Operation> createOperation(@Body Operation operation) throws URISyntaxException {
         log.debug("REST request to save Operation : {}", operation);
         if (operation.getId() != null) {
             throw new BadRequestAlertException("A new operation cannot already have an ID", ENTITY_NAME, "idexists");
@@ -78,7 +81,8 @@ public class OperationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Put("/operations")
-    public HttpResponse<Operation> updateOperation(@Valid @Body Operation operation) throws URISyntaxException {
+    @ExecuteOn(TaskExecutors.IO)
+    public HttpResponse<Operation> updateOperation(@Body Operation operation) throws URISyntaxException {
         log.debug("REST request to update Operation : {}", operation);
         if (operation.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -96,6 +100,7 @@ public class OperationResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of operations in body.
      */
      @Get("/operations{?eagerload}")
+     @ExecuteOn(TaskExecutors.IO)
     public HttpResponse<List<Operation>> getAllOperations(HttpRequest request, Pageable pageable, @Nullable Boolean eagerload) {
         log.debug("REST request to get a page of Operations");
         Page<Operation> page;
@@ -115,6 +120,7 @@ public class OperationResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the operation, or with status {@code 404 (Not Found)}.
      */
     @Get("/operations/{id}")
+    @ExecuteOn(TaskExecutors.IO)
     public Optional<Operation> getOperation(@PathVariable Long id) {
         log.debug("REST request to get Operation : {}", id);
         
@@ -128,6 +134,7 @@ public class OperationResource {
      * @return the {@link HttpResponse} with status {@code 204 (NO_CONTENT)}.
      */
     @Delete("/operations/{id}")
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse deleteOperation(@PathVariable Long id) {
         log.debug("REST request to delete Operation : {}", id);
         operationRepository.deleteById(id);

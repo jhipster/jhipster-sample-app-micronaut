@@ -5,18 +5,20 @@ import io.github.jhipster.sample.repository.LabelRepository;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.sample.util.HeaderUtil;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.uri.UriBuilder;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.micronaut.context.annotation.Value;
 
 
 
 import javax.annotation.Nullable;
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -49,7 +51,8 @@ public class LabelResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Post("/labels")
-    public HttpResponse<Label> createLabel(@Valid @Body Label label) throws URISyntaxException {
+    @ExecuteOn(TaskExecutors.IO)
+    public HttpResponse<Label> createLabel(@Body Label label) throws URISyntaxException {
         log.debug("REST request to save Label : {}", label);
         if (label.getId() != null) {
             throw new BadRequestAlertException("A new label cannot already have an ID", ENTITY_NAME, "idexists");
@@ -72,7 +75,8 @@ public class LabelResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Put("/labels")
-    public HttpResponse<Label> updateLabel(@Valid @Body Label label) throws URISyntaxException {
+    @ExecuteOn(TaskExecutors.IO)
+    public HttpResponse<Label> updateLabel(@Body Label label) throws URISyntaxException {
         log.debug("REST request to update Label : {}", label);
         if (label.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -88,6 +92,7 @@ public class LabelResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of labels in body.
      */
      @Get("/labels")
+     @ExecuteOn(TaskExecutors.IO)
     public Iterable<Label> getAllLabels(HttpRequest request) {
         log.debug("REST request to get all Labels");
         return labelRepository.findAll();
@@ -100,6 +105,7 @@ public class LabelResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the label, or with status {@code 404 (Not Found)}.
      */
     @Get("/labels/{id}")
+    @ExecuteOn(TaskExecutors.IO)
     public Optional<Label> getLabel(@PathVariable Long id) {
         log.debug("REST request to get Label : {}", id);
         
@@ -113,6 +119,7 @@ public class LabelResource {
      * @return the {@link HttpResponse} with status {@code 204 (NO_CONTENT)}.
      */
     @Delete("/labels/{id}")
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse deleteLabel(@PathVariable Long id) {
         log.debug("REST request to delete Label : {}", id);
         labelRepository.deleteById(id);

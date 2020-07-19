@@ -67,11 +67,12 @@ micronaut:
     token:
       jwt:
         generator:
-          access-token-expiration: 86400
+          access-token:
+            expiration: 86400
         signatures:
           secret:
             generator:
-              secret: ZjQ1ZGEyZThkODY1MzM5YTQ3YjlkYjgzMjcyODg5MDU5YmRlOGFkODdkZDkwNmJiOGFjOGNkYzFiNzI1NWU0YmVhMzRlYTM2MDhmNjlmZjc2NmI4OWNiNTAxN2M0ZTVkNDMwZjQ2ZTNiZTAxNzYwMzg5MzljYWVlNDkxODc5Mzc=
+              secret: NjZjYmI1MTBhMjAxZTU5YWQ3ZTUyNDc5NzkyYzIwYzYzZmU0NDM0OTZkMDQ3NTFlYWEzMWI1MzAzNGNhY2UyZjE1Zjk0NGRjNDI2ZmVhZmQxMzQzNmI0YWYwMjBhNDMxMjJjZGFiOGQzNTQ3MmJmYzI1YWE2NjIzZmIxZWY3ZDc=
               base64: true
               jws-algorithm: HS512
 

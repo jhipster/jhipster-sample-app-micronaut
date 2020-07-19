@@ -5,18 +5,20 @@ import io.github.jhipster.sample.repository.BankAccountRepository;
 import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.sample.util.HeaderUtil;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.uri.UriBuilder;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.micronaut.context.annotation.Value;
 
 
 
 import javax.annotation.Nullable;
-import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -49,7 +51,8 @@ public class BankAccountResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Post("/bank-accounts")
-    public HttpResponse<BankAccount> createBankAccount(@Valid @Body BankAccount bankAccount) throws URISyntaxException {
+    @ExecuteOn(TaskExecutors.IO)
+    public HttpResponse<BankAccount> createBankAccount(@Body BankAccount bankAccount) throws URISyntaxException {
         log.debug("REST request to save BankAccount : {}", bankAccount);
         if (bankAccount.getId() != null) {
             throw new BadRequestAlertException("A new bankAccount cannot already have an ID", ENTITY_NAME, "idexists");
@@ -72,7 +75,8 @@ public class BankAccountResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @Put("/bank-accounts")
-    public HttpResponse<BankAccount> updateBankAccount(@Valid @Body BankAccount bankAccount) throws URISyntaxException {
+    @ExecuteOn(TaskExecutors.IO)
+    public HttpResponse<BankAccount> updateBankAccount(@Body BankAccount bankAccount) throws URISyntaxException {
         log.debug("REST request to update BankAccount : {}", bankAccount);
         if (bankAccount.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -88,6 +92,7 @@ public class BankAccountResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of bankAccounts in body.
      */
      @Get("/bank-accounts")
+     @ExecuteOn(TaskExecutors.IO)
     public Iterable<BankAccount> getAllBankAccounts(HttpRequest request) {
         log.debug("REST request to get all BankAccounts");
         return bankAccountRepository.findAll();
@@ -100,6 +105,7 @@ public class BankAccountResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the bankAccount, or with status {@code 404 (Not Found)}.
      */
     @Get("/bank-accounts/{id}")
+    @ExecuteOn(TaskExecutors.IO)
     public Optional<BankAccount> getBankAccount(@PathVariable Long id) {
         log.debug("REST request to get BankAccount : {}", id);
         
@@ -113,6 +119,7 @@ public class BankAccountResource {
      * @return the {@link HttpResponse} with status {@code 204 (NO_CONTENT)}.
      */
     @Delete("/bank-accounts/{id}")
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse deleteBankAccount(@PathVariable Long id) {
         log.debug("REST request to delete BankAccount : {}", id);
         bankAccountRepository.deleteById(id);

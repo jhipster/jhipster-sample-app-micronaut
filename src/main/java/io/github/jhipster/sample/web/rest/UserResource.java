@@ -20,6 +20,8 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.uri.UriBuilder;
+import io.micronaut.scheduling.TaskExecutors;
+import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.security.annotation.Secured;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +89,7 @@ public class UserResource {
      */
     @Post("/users")
     @Secured(AuthoritiesConstants.ADMIN)
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse<User> createUser(@Valid @Body UserDTO userDTO) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDTO);
 
@@ -120,6 +123,7 @@ public class UserResource {
      */
     @Put("/users")
     @Secured(AuthoritiesConstants.ADMIN)
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse<UserDTO> updateUser(@Valid @Body UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
@@ -145,6 +149,7 @@ public class UserResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body all users.
      */
     @Get("/users")
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse<List<UserDTO>> getAllUsers(HttpRequest request, Pageable pageable) {
         final Page<UserDTO> page = userService.getAllManagedUsers(pageable);
         return HttpResponse.ok(page.getContent()).headers(headers ->
@@ -158,6 +163,7 @@ public class UserResource {
      */
     @Get("/users/authorities")
     @Secured(AuthoritiesConstants.ADMIN)
+    @ExecuteOn(TaskExecutors.IO)
     public List<String> getAuthorities() {
         return userService.getAuthorities();
     }
@@ -169,6 +175,7 @@ public class UserResource {
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
      */
     @Get("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @ExecuteOn(TaskExecutors.IO)
     public Optional<UserDTO> getUser(@PathVariable String login) {
         log.debug("REST request to get User : {}", login);
         return userService.getUserWithAuthoritiesByLogin(login)
@@ -183,6 +190,7 @@ public class UserResource {
      */
     @Delete("/users/{login:" + Constants.LOGIN_REGEX + "}")
     @Secured(AuthoritiesConstants.ADMIN)
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);

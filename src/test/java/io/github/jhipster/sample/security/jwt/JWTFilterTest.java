@@ -3,6 +3,8 @@ package io.github.jhipster.sample.security.jwt;
 import io.github.jhipster.sample.security.AuthoritiesConstants;
 import io.github.jhipster.sample.security.DatabaseAuthenticationProvider;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Replaces;
@@ -39,6 +41,7 @@ public class JWTFilterTest {
 
     @Test
     public void testJWTFilter() throws Exception {
+
         AccessRefreshToken token = client.retrieve(HttpRequest.POST("/api/authenticate", new UsernamePasswordCredentials("test-user",
             "test-password")), AccessRefreshToken.class).blockingFirst();
 
@@ -98,7 +101,7 @@ public class JWTFilterTest {
     @Singleton
     static class MockAuthenticationProvider implements AuthenticationProvider {
         @Override
-        public Publisher<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
+        public Publisher<AuthenticationResponse> authenticate(@Nullable HttpRequest<?> httpRequest, AuthenticationRequest<?, ?> authenticationRequest) {
             if (authenticationRequest.getIdentity().toString().equals("test-user") &&
             authenticationRequest.getSecret().toString().equals("test-password")) {
                 return Flowable.just(new UserDetails("test-user", Collections.emptyList()));

@@ -177,12 +177,12 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 [micronaut blueprint for jhipster]: https://github.com/jhipster/generator-jhipster-micronaut
 [micronaut]: https://micronaut.io
 [jhipster homepage and latest documentation]: https://www.jhipster.tech
-[jhipster 6.9.1 archive]: https://www.jhipster.tech/documentation-archive/v6.9.1
-[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v6.9.1/development/
-[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v6.9.1/docker-compose
-[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v6.9.1/production/
-[running tests page]: https://www.jhipster.tech/documentation-archive/v6.9.1/running-tests/
-[code quality page]: https://www.jhipster.tech/documentation-archive/v6.9.1/code-quality/
+[jhipster 6.10.1 archive]: https://www.jhipster.tech/documentation-archive/v6.10.1
+[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v6.10.1/development/
+[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v6.10.1/docker-compose
+[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v6.10.1/production/
+[running tests page]: https://www.jhipster.tech/documentation-archive/v6.10.1/running-tests/
+[code quality page]: https://www.jhipster.tech/documentation-archive/v6.10.1/code-quality/
 [node.js]: https://nodejs.org/
 [yarn]: https://yarnpkg.org/
 [webpack]: https://webpack.github.io/

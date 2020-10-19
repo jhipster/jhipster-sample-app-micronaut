@@ -1,5 +1,4 @@
 package io.github.jhipster.sample.service;
-
 import io.github.jhipster.sample.config.Constants;
 import io.github.jhipster.sample.domain.Authority;
 import io.github.jhipster.sample.domain.User;

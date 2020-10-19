@@ -2,19 +2,17 @@ package io.github.jhipster.sample.config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
 import java.util.Properties;
 
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
 
+import java.time.Duration;
 import org.ehcache.config.builders.*;
 import org.ehcache.jsr107.Eh107Configuration;
 import org.ehcache.jsr107.EhcacheCachingProvider;
-
 import org.hibernate.cache.jcache.ConfigSettings;
-
 
 import javax.cache.CacheManager;
 import javax.inject.Singleton;

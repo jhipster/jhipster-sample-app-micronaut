@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -84,6 +85,7 @@ public class OperationResourceIT {
     public void createOperation() throws Exception {
         int databaseSizeBeforeCreate = operationRepository.findAll().size();
 
+
         // Create the Operation
         HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class).blockingFirst();
 
@@ -107,6 +109,7 @@ public class OperationResourceIT {
         operation.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -126,6 +129,7 @@ public class OperationResourceIT {
 
         // Create the Operation, which fails.
 
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -143,6 +147,7 @@ public class OperationResourceIT {
 
         // Create the Operation, which fails.
 
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.POST("/api/operations", operation), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -173,7 +178,7 @@ public class OperationResourceIT {
         operationRepository.saveAndFlush(operation);
 
         // Get the operation
-        Operation testOperation = client.retrieve(HttpRequest.GET("/api/operations/" + this.operation.getId()), Operation.class).blockingFirst();
+        Operation testOperation = client.retrieve(HttpRequest.GET("/api/operations/" + operation.getId()), Operation.class).blockingFirst();
 
 
         assertThat(testOperation.getDate()).isEqualTo(DEFAULT_DATE);
@@ -184,6 +189,7 @@ public class OperationResourceIT {
     @Test
     public void getNonExistingOperation() throws Exception {
         // Get the operation
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.GET("/api/operations/"+ Long.MAX_VALUE), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -205,6 +211,7 @@ public class OperationResourceIT {
             .description(UPDATED_DESCRIPTION)
             .amount(UPDATED_AMOUNT);
 
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.PUT("/api/operations", updatedOperation), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -227,6 +234,7 @@ public class OperationResourceIT {
         // Create the Operation
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.PUT("/api/operations", operation), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -245,10 +253,13 @@ public class OperationResourceIT {
         int databaseSizeBeforeDelete = operationRepository.findAll().size();
 
         // Delete the operation
+        @SuppressWarnings("unchecked")
         HttpResponse<Operation> response = client.exchange(HttpRequest.DELETE("/api/operations/"+ operation.getId()), Operation.class)
             .onErrorReturn(t -> (HttpResponse<Operation>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        // Validate the database is now empty
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.NO_CONTENT.getCode());
+
+            // Validate the database is now empty
         List<Operation> operationList = operationRepository.findAll();
         assertThat(operationList).hasSize(databaseSizeBeforeDelete - 1);
     }

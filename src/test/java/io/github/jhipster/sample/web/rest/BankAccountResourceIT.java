@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.List;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -78,6 +79,7 @@ public class BankAccountResourceIT {
     public void createBankAccount() throws Exception {
         int databaseSizeBeforeCreate = bankAccountRepository.findAll().size();
 
+
         // Create the BankAccount
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class).blockingFirst();
 
@@ -100,6 +102,7 @@ public class BankAccountResourceIT {
         bankAccount.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -119,6 +122,7 @@ public class BankAccountResourceIT {
 
         // Create the BankAccount, which fails.
 
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -136,6 +140,7 @@ public class BankAccountResourceIT {
 
         // Create the BankAccount, which fails.
 
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.POST("/api/bank-accounts", bankAccount), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -165,7 +170,7 @@ public class BankAccountResourceIT {
         bankAccountRepository.saveAndFlush(bankAccount);
 
         // Get the bankAccount
-        BankAccount testBankAccount = client.retrieve(HttpRequest.GET("/api/bank-accounts/" + this.bankAccount.getId()), BankAccount.class).blockingFirst();
+        BankAccount testBankAccount = client.retrieve(HttpRequest.GET("/api/bank-accounts/" + bankAccount.getId()), BankAccount.class).blockingFirst();
 
 
         assertThat(testBankAccount.getName()).isEqualTo(DEFAULT_NAME);
@@ -175,6 +180,7 @@ public class BankAccountResourceIT {
     @Test
     public void getNonExistingBankAccount() throws Exception {
         // Get the bankAccount
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.GET("/api/bank-accounts/"+ Long.MAX_VALUE), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -195,6 +201,7 @@ public class BankAccountResourceIT {
             .name(UPDATED_NAME)
             .balance(UPDATED_BALANCE);
 
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.PUT("/api/bank-accounts", updatedBankAccount), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -216,6 +223,7 @@ public class BankAccountResourceIT {
         // Create the BankAccount
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.PUT("/api/bank-accounts", bankAccount), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -234,10 +242,13 @@ public class BankAccountResourceIT {
         int databaseSizeBeforeDelete = bankAccountRepository.findAll().size();
 
         // Delete the bankAccount
+        @SuppressWarnings("unchecked")
         HttpResponse<BankAccount> response = client.exchange(HttpRequest.DELETE("/api/bank-accounts/"+ bankAccount.getId()), BankAccount.class)
             .onErrorReturn(t -> (HttpResponse<BankAccount>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        // Validate the database is now empty
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.NO_CONTENT.getCode());
+
+            // Validate the database is now empty
         List<BankAccount> bankAccountList = bankAccountRepository.findAll();
         assertThat(bankAccountList).hasSize(databaseSizeBeforeDelete - 1);
     }

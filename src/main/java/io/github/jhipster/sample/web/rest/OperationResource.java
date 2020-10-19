@@ -99,8 +99,8 @@ public class OperationResource {
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of operations in body.
      */
-     @Get("/operations{?eagerload}")
-     @ExecuteOn(TaskExecutors.IO)
+    @Get("/operations{?eagerload}")
+    @ExecuteOn(TaskExecutors.IO)
     public HttpResponse<List<Operation>> getAllOperations(HttpRequest request, Pageable pageable, @Nullable Boolean eagerload) {
         log.debug("REST request to get a page of Operations");
         Page<Operation> page;

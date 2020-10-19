@@ -63,6 +63,7 @@ public class AccountResourceIT {
         return mock(MailService.class);
     }
 
+ 
     @BeforeEach
     public void setup() {
         doNothing().when(mailService).sendActivationEmail(any());

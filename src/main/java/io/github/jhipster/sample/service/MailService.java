@@ -4,6 +4,9 @@ import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.MessageSource;
 import io.micronaut.scheduling.annotation.Async;
+import org.simplejavamail.api.email.EmailPopulatingBuilder;
+import org.simplejavamail.api.mailer.Mailer;
+import org.simplejavamail.email.EmailBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
@@ -30,37 +33,41 @@ public class MailService {
 
     private final JHipsterProperties jHipsterProperties;
 
-    //private final JavaMailSender javaMailSender;
+    private final Mailer mailer;
 
     private final MessageSource messageSource;
 
     private final TemplateEngine templateEngine;
 
 
-    public MailService(JHipsterProperties jHipsterProperties, //JavaMailSender javaMailSender,
+    public MailService(JHipsterProperties jHipsterProperties, Mailer mailer,
                        MessageSource messageSource, TemplateEngine templateEngine) {
 
         this.jHipsterProperties = jHipsterProperties;
-        //this.javaMailSender = javaMailSender;
+        this.mailer = mailer;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
     }
 
     @Async
-    public void sendEmail(String to, String subject, String content, boolean isMultipart, boolean isHtml) {
-        log.warn("Email functionality not yet implemented!");
-        log.warn("Send email[multipart '{}' and html '{}'] to '{}' with subject '{}' and content={}",
-            isMultipart, isHtml, to, subject, content);
+    public void sendEmail(String to, String subject, String content, boolean isHtml) {
+        log.debug("Send email[html '{}'] to '{}' with subject '{}' and content={}",
+            isHtml, to, subject, content);
 
-        // MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        EmailPopulatingBuilder emailPopulatingBuilder = EmailBuilder.startingBlank()
+            .to(to)
+            .from(jHipsterProperties.getMail().getFrom())
+            .withSubject(subject);
+
+        if (isHtml) {
+            emailPopulatingBuilder.withHTMLText(content);
+        } else {
+            emailPopulatingBuilder.withPlainText(content);
+        }
+
         try {
-            //MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
-            //message.setTo(to);
-            //message.setFrom(jHipsterProperties.getMail().getFrom());
-            //message.setSubject(subject);
-            //message.setText(content, isHtml);
-            //javaMailSender.send(mimeMessage);
-            log.warn("Sent email to User '{}'", to);
+            mailer.sendMail(emailPopulatingBuilder.buildEmail());
+            log.debug("Sent email to User '{}'", to);
         } catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.warn("Email could not be sent to user '{}'", to, e);
@@ -78,7 +85,7 @@ public class MailService {
         context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
         String content = templateEngine.process(templateName, context);
         String subject = messageSource.getMessage(titleKey, MessageSource.MessageContext.of(locale)).orElse(null);
-        sendEmail(user.getEmail(), subject, content, false, true);
+        sendEmail(user.getEmail(), subject, content, true);
     }
 
     @Async

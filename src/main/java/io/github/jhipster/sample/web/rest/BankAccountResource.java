@@ -91,8 +91,8 @@ public class BankAccountResource {
      *
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of bankAccounts in body.
      */
-     @Get("/bank-accounts")
-     @ExecuteOn(TaskExecutors.IO)
+    @Get("/bank-accounts")
+    @ExecuteOn(TaskExecutors.IO)
     public Iterable<BankAccount> getAllBankAccounts(HttpRequest request) {
         log.debug("REST request to get all BankAccounts");
         return bankAccountRepository.findAll();

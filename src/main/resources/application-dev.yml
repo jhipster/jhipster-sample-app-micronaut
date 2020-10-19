@@ -25,25 +25,27 @@ liquibase:
       change-log: classpath:config/liquibase/master.xml
       contexts: dev,faker
 
+mail:
+  host: localhost
+  port: 25
+  # username:
+  # password:
+
 jpa:
   default:
-    packages-to-scan: io.github.jhipster.sample.domain
+    packages-to-scan:
+      - io.github.jhipster.sample.domain
+      - io.github.jhipster.sample.repository
+    show-sql: false
     properties:
-      hibernate:
-        javax:
-          cache:
-            missing_cache_strategy: create
-        hbm2ddl:
-          auto: none
-        show_sql: true
-        id:
-          new_generator_mappings: true
-        connection:
-          provider_disables_autocommit: true
-        cache:
-          use_second_level_cache: true
-          use_query_cache: false
-        generate_statistics: false
+      hibernate.dialect: 'io.github.jhipster.domain.util.FixedH2Dialect'
+      hibernate.javax.cache.missing_cache_strategy: create
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.connection.autocommit: false
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
 
 logging:
   level:
@@ -72,7 +74,7 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: NjZjYmI1MTBhMjAxZTU5YWQ3ZTUyNDc5NzkyYzIwYzYzZmU0NDM0OTZkMDQ3NTFlYWEzMWI1MzAzNGNhY2UyZjE1Zjk0NGRjNDI2ZmVhZmQxMzQzNmI0YWYwMjBhNDMxMjJjZGFiOGQzNTQ3MmJmYzI1YWE2NjIzZmIxZWY3ZDc=
+              secret: YzNiNDlhN2IzNWYzNmZiOGFlZTVmZDYxODk3ZDE1N2Y2MjY5NTVjZmQ2ZWI3NTliYjAwNTkyNzQ2YzYxMDI2OWEyZDUxZjNmNDc0MTExYWUzZDlhZTllYzUwMjFiMTdkYWNhYzQ1NGJmNmZjMTRhNjBjNzUxZDljZDQyZWVkODE=
               base64: true
               jws-algorithm: HS512
 

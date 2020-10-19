@@ -22,7 +22,6 @@ import java.time.Instant;
 public abstract class UserRepository implements JpaRepository<User, Long> {
 
     private EntityManager entityManager;
-
     public static String USERS_BY_LOGIN_CACHE = "usersByLogin";
 
     public static String USERS_BY_EMAIL_CACHE = "usersByEmail";

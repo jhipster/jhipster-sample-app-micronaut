@@ -18,7 +18,7 @@ import javax.transaction.Transactional;
 @Repository
 public abstract class LabelRepository implements JpaRepository<Label, Long> {
     
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
 
     public LabelRepository(EntityManager entityManager) {

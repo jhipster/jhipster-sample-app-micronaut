@@ -1,5 +1,4 @@
 package io.github.jhipster.sample.security;
-
 import io.github.jhipster.sample.JhipsterSampleApplicationApp;
 import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.repository.UserRepository;

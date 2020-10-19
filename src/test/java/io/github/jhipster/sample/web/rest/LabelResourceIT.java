@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import java.util.List;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -73,6 +74,7 @@ public class LabelResourceIT {
     public void createLabel() throws Exception {
         int databaseSizeBeforeCreate = labelRepository.findAll().size();
 
+
         // Create the Label
         HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class).blockingFirst();
 
@@ -94,6 +96,7 @@ public class LabelResourceIT {
         label.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
+        @SuppressWarnings("unchecked")
         HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -113,6 +116,7 @@ public class LabelResourceIT {
 
         // Create the Label, which fails.
 
+        @SuppressWarnings("unchecked")
         HttpResponse<Label> response = client.exchange(HttpRequest.POST("/api/labels", label), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -141,7 +145,7 @@ public class LabelResourceIT {
         labelRepository.saveAndFlush(label);
 
         // Get the label
-        Label testLabel = client.retrieve(HttpRequest.GET("/api/labels/" + this.label.getId()), Label.class).blockingFirst();
+        Label testLabel = client.retrieve(HttpRequest.GET("/api/labels/" + label.getId()), Label.class).blockingFirst();
 
 
         assertThat(testLabel.getLabel()).isEqualTo(DEFAULT_LABEL);
@@ -150,6 +154,7 @@ public class LabelResourceIT {
     @Test
     public void getNonExistingLabel() throws Exception {
         // Get the label
+        @SuppressWarnings("unchecked")
         HttpResponse<Label> response = client.exchange(HttpRequest.GET("/api/labels/"+ Long.MAX_VALUE), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -169,6 +174,7 @@ public class LabelResourceIT {
         updatedLabel
             .label(UPDATED_LABEL);
 
+        @SuppressWarnings("unchecked")
         HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/labels", updatedLabel), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -189,6 +195,7 @@ public class LabelResourceIT {
         // Create the Label
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        @SuppressWarnings("unchecked")
         HttpResponse<Label> response = client.exchange(HttpRequest.PUT("/api/labels", label), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
@@ -207,10 +214,13 @@ public class LabelResourceIT {
         int databaseSizeBeforeDelete = labelRepository.findAll().size();
 
         // Delete the label
+        @SuppressWarnings("unchecked")
         HttpResponse<Label> response = client.exchange(HttpRequest.DELETE("/api/labels/"+ label.getId()), Label.class)
             .onErrorReturn(t -> (HttpResponse<Label>) ((HttpClientResponseException) t).getResponse()).blockingFirst();
 
-        // Validate the database is now empty
+        assertThat(response.status().getCode()).isEqualTo(HttpStatus.NO_CONTENT.getCode());
+
+            // Validate the database is now empty
         List<Label> labelList = labelRepository.findAll();
         assertThat(labelList).hasSize(databaseSizeBeforeDelete - 1);
     }

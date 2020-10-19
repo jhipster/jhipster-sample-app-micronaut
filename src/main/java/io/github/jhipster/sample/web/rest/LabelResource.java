@@ -91,8 +91,8 @@ public class LabelResource {
      *
      * @return the {@link HttpResponse} with status {@code 200 (OK)} and the list of labels in body.
      */
-     @Get("/labels")
-     @ExecuteOn(TaskExecutors.IO)
+    @Get("/labels")
+    @ExecuteOn(TaskExecutors.IO)
     public Iterable<Label> getAllLabels(HttpRequest request) {
         log.debug("REST request to get all Labels");
         return labelRepository.findAll();

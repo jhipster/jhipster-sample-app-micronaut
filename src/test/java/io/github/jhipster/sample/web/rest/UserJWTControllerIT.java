@@ -14,7 +14,6 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.security.token.jwt.render.AccessRefreshToken;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
-
 import javax.inject.Inject;
 
 import java.util.List;

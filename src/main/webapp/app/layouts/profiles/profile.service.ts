@@ -21,14 +21,14 @@ export class ProfileService {
     this.profileInfo$ = this.http.get<InfoResponse>(this.infoUrl).pipe(
       map((response: InfoResponse) => {
         const profileInfo: ProfileInfo = {
-          activeProfiles: response.activeProfiles,
-          inProduction: response.activeProfiles && response.activeProfiles.includes('prod'),
-          swaggerEnabled: response.activeProfiles && response.activeProfiles.includes('swagger'),
+          activeProfiles: response['active-profiles'],
+          inProduction: response['active-profiles'] && response['active-profiles'].includes('prod'),
+          swaggerEnabled: response['active-profiles'] && response['active-profiles'].includes('swagger'),
         };
-        if (response.activeProfiles && response['display-ribbon-on-profiles']) {
+        if (response['active-profiles'] && response['display-ribbon-on-profiles']) {
           const displayRibbonOnProfiles = response['display-ribbon-on-profiles'].split(',');
           const ribbonProfiles = displayRibbonOnProfiles.filter(
-            profile => response.activeProfiles && response.activeProfiles.includes(profile)
+            profile => response['active-profiles'] && response['active-profiles'].includes(profile)
           );
           if (ribbonProfiles.length > 0) {
             profileInfo.ribbonEnv = ribbonProfiles[0];

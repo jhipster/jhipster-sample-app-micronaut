@@ -20,7 +20,7 @@ import java.util.List;
 @Repository
 public abstract class BankAccountRepository implements JpaRepository<BankAccount, Long> {
     
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
 
     @Query("select bankAccount from BankAccount bankAccount where bankAccount.user.login = :username ")

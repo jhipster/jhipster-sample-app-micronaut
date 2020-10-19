@@ -5,7 +5,7 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - MICRONAUT_ENVIRONMENTS=prod
-      - JDBC_URL=jdbc:mysql://jhipstersampleapplication-mysql:3306/jhipstersampleapplication?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=utf8&useSSL=false&createDatabaseIfNotExist=true
+      - JDBC_URL=jdbc:mysql://jhipstersampleapplication-mysql:3306/jhipstersampleapplication?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
       - JDBC_PASSWORD=password
       - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
     ports:

@@ -120,6 +120,7 @@ public class UserResourceIT {
         cacheManager.getCache(UserRepository.USERS_BY_EMAIL_CACHE).invalidateAll();
     }
 
+
     private void resetDefaultUser() {
         User reInsert = createEntity();
         reInsert.setLogin(DEFAULT_LOGIN);

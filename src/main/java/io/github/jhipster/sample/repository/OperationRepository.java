@@ -24,7 +24,7 @@ import java.util.Optional;
 @Repository
 public abstract class OperationRepository implements JpaRepository<Operation, Long> {
     
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
 
     @Query(value = "select distinct operation from Operation operation left join fetch operation.labels",

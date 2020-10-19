@@ -46,8 +46,8 @@
 
         <!-- Dependency versions -->
         <jhipster-dependencies.version>3.9.0</jhipster-dependencies.version>
-        <micronaut.version>2.0.0</micronaut.version>
-        <micronaut-data.version>1.1.1</micronaut-data.version>
+        <micronaut.version>2.0.1</micronaut.version>
+        <micronaut-data.version>1.1.3</micronaut-data.version>
         <hibernate.version>5.4.17.Final</hibernate.version>
         <!-- The javassist version should match the one managed by
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
@@ -60,25 +60,26 @@
         <mapstruct.version>1.3.1.Final</mapstruct.version>
         <mockito.version>3.1.0</mockito.version>
         <problem.version>0.24.0</problem.version>
-        <jackson.version>2.11.0</jackson.version>
+        <jackson.version>2.11.1</jackson.version>
         <!-- Plugin versions -->
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
         <maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
         <!-- We can't go to 3.0.0-M2 as it has a regression. See https://issues.apache.org/jira/browse/MENFORCER-306 -->
-        <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M3</maven-failsafe-plugin.version>
         <maven-idea-plugin.version>2.2.1</maven-idea-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
-        <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+        <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
         <maven-exec-plugin.version>1.6.0</maven-exec-plugin.version>
         <micronaut-plugin.version>1.0.0</micronaut-plugin.version>
 
         <frontend-maven-plugin.version>1.10.0</frontend-maven-plugin.version>
-        <git-commit-id-plugin.version>2.2.6</git-commit-id-plugin.version>
-        <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+        <git-commit-id-plugin.version>4.0.2</git-commit-id-plugin.version>
+        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <jib-maven-plugin.version>2.4.0</jib-maven-plugin.version>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
@@ -140,6 +141,11 @@
                     <artifactId>spring-boot-starter-web</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.simplejavamail</groupId>
+            <artifactId>simple-java-mail</artifactId>
+            <version>6.4.3</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -413,8 +419,8 @@
         <!-- jhipster-needle-maven-add-dependency -->
     </dependencies>
     <build>
-        <defaultGoal>mn:run</defaultGoal>
-      
+        <defaultGoal>package mn:run</defaultGoal>
+
         <plugins>
             <plugin>
                 <groupId>io.micronaut.build</groupId>
@@ -432,6 +438,7 @@
                         <goal>shade</goal>
                         </goals>
                         <configuration>
+                        <createDependencyReducedPom>false</createDependencyReducedPom>
                         <transformers>
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <mainClass>${exec.mainClass}</mainClass>
@@ -514,6 +521,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -683,7 +691,7 @@
                             <entrypoint>
                                 <shell>sh</shell>
                                 <option>-c</option>
-                                <arg>chmod +x /entrypoint.sh &amp;&amp; sync &amp;&amp; /entrypoint.sh</arg>
+                                <arg>/entrypoint.sh</arg>
                             </entrypoint>
                             <ports>
                                 <port>8080</port>
@@ -789,8 +797,8 @@
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 12.</message>
-                                <version>[1.8,13)</version>
+                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 14.</message>
+                                <version>[1.8,15)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>
@@ -913,9 +921,7 @@
         <profile>
             <id>webpack</id>
             <activation>
-                <file>
-                    <missing>${basedir}/target/classes/static/app/main.bundle.js</missing>
-                </file>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>

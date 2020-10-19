@@ -53,6 +53,8 @@ micronaut:
     intercept-url-map:
       - pattern: /
         access: isAnonymous()
+      - pattern: /manifest.webapp
+        access: isAnonymous()
       - pattern: /app/**/*.*
         access: isAnonymous()
       - pattern: /i18n/**
@@ -110,6 +112,8 @@ endpoints:
     sensitive: false
   health:
     details-visible: AUTHENTICATED
+    discovery-client:
+      enabled: false
 jmx:
   register-endpoints: false
 

@@ -12,7 +12,9 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionOperations;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,12 +22,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
+import java.sql.Connection;
 import java.util.List;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -42,6 +45,12 @@ public class LabelResourceIT {
     @Inject
     private LabelRepository labelRepository;
 
+    @Inject
+    private EntityManager em;
+
+    @Inject
+    SynchronousTransactionManager<Connection> transactionManager;
+
     @Inject @Client("/")
     RxHttpClient client;
 
@@ -49,12 +58,12 @@ public class LabelResourceIT {
 
     @BeforeEach
     public void initTest() {
-        label = createEntity();
+        label = createEntity(transactionManager, em);
     }
 
     @AfterEach
     public void cleanUpTest() {
-        labelRepository.deleteAll();
+        deleteAll(transactionManager, em);
     }
 
     /**
@@ -63,10 +72,20 @@ public class LabelResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Label createEntity() {
+    public static Label createEntity(TransactionOperations<Connection> transactionManager, EntityManager em) {
         Label label = new Label()
             .label(DEFAULT_LABEL);
         return label;
+    }
+
+    /**
+     * Delete all label entities.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static void deleteAll(TransactionOperations<Connection> transactionManager, EntityManager em) {
+        TestUtil.removeAll(transactionManager, em, Label.class);
     }
 
 

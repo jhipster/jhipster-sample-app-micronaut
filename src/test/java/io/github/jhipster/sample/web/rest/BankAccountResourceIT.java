@@ -12,7 +12,9 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionOperations;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.util.List;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -46,6 +49,12 @@ public class BankAccountResourceIT {
     @Inject
     private BankAccountRepository bankAccountRepository;
 
+    @Inject
+    private EntityManager em;
+
+    @Inject
+    SynchronousTransactionManager<Connection> transactionManager;
+
     @Inject @Client("/")
     RxHttpClient client;
 
@@ -53,12 +62,12 @@ public class BankAccountResourceIT {
 
     @BeforeEach
     public void initTest() {
-        bankAccount = createEntity();
+        bankAccount = createEntity(transactionManager, em);
     }
 
     @AfterEach
     public void cleanUpTest() {
-        bankAccountRepository.deleteAll();
+        deleteAll(transactionManager, em);
     }
 
     /**
@@ -67,11 +76,21 @@ public class BankAccountResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static BankAccount createEntity() {
+    public static BankAccount createEntity(TransactionOperations<Connection> transactionManager, EntityManager em) {
         BankAccount bankAccount = new BankAccount()
             .name(DEFAULT_NAME)
             .balance(DEFAULT_BALANCE);
         return bankAccount;
+    }
+
+    /**
+     * Delete all bankAccount entities.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static void deleteAll(TransactionOperations<Connection> transactionManager, EntityManager em) {
+        TestUtil.removeAll(transactionManager, em, BankAccount.class);
     }
 
 
@@ -91,7 +110,7 @@ public class BankAccountResourceIT {
         BankAccount testBankAccount = bankAccountList.get(bankAccountList.size() - 1);
 
         assertThat(testBankAccount.getName()).isEqualTo(DEFAULT_NAME);
-        assertEquals(testBankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
+        assertThat(testBankAccount.getBalance()).isEqualByComparingTo(DEFAULT_BALANCE);
     }
 
     @Test
@@ -161,7 +180,7 @@ public class BankAccountResourceIT {
 
 
         assertThat(testBankAccount.getName()).isEqualTo(DEFAULT_NAME);
-        assertEquals(testBankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
+        assertThat(testBankAccount.getBalance()).isEqualByComparingTo(DEFAULT_BALANCE);
     }
 
     @Test
@@ -174,7 +193,7 @@ public class BankAccountResourceIT {
 
 
         assertThat(testBankAccount.getName()).isEqualTo(DEFAULT_NAME);
-        assertEquals(testBankAccount.getBalance().compareTo(DEFAULT_BALANCE), 0);
+        assertThat(testBankAccount.getBalance()).isEqualByComparingTo(DEFAULT_BALANCE);
     }
 
     @Test
@@ -213,7 +232,7 @@ public class BankAccountResourceIT {
         BankAccount testBankAccount = bankAccountList.get(bankAccountList.size() - 1);
 
         assertThat(testBankAccount.getName()).isEqualTo(UPDATED_NAME);
-        assertEquals(testBankAccount.getBalance().compareTo(UPDATED_BALANCE), 0);
+        assertThat(testBankAccount.getBalance()).isEqualByComparingTo(UPDATED_BALANCE);
     }
 
     @Test

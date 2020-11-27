@@ -26,25 +26,25 @@
     "blueprints": [
       {
         "name": "generator-jhipster-micronaut",
-        "version": "0.5.0"
+        "version": "0.7.0"
       }
     ],
     "clientPackageManager": "npm",
     "clientTheme": "none",
-    "creationTimestamp": 1603125420678,
+    "creationTimestamp": 1606514520744,
     "dtoSuffix": "DTO",
     "embeddableLaunchScript": false,
-    "jhipsterVersion": "6.10.1",
+    "jhipsterVersion": "6.10.5",
     "packageName": "io.github.jhipster.sample",
     "packageFolder": "io/github/jhipster/sample",
     "skipServer": false,
     "useSass": true,
-    "jwtSecretKey": "YzNiNDlhN2IzNWYzNmZiOGFlZTVmZDYxODk3ZDE1N2Y2MjY5NTVjZmQ2ZWI3NTliYjAwNTkyNzQ2YzYxMDI2OWEyZDUxZjNmNDc0MTExYWUzZDlhZTllYzUwMjFiMTdkYWNhYzQ1NGJmNmZjMTRhNjBjNzUxZDljZDQyZWVkODE=",
+    "jwtSecretKey": "ZTRmZDc4OTAyYTlhNTg0ZmE5MzZkM2VjOGIwOTllYmFhYzdhMDk0YzZkYTA3OWFkODkwMDRkMDA3MDliNzZiMmY1OWZmMDUwZDBiMTdlYzczYjMwOWNhMDUwMzgyZTA1OTYwNmY1YzYyYTVhZGQxMTdiMjVhNTI2MmI4MmFlODg=",
     "entitySuffix": "",
     "otherModules": [
       {
         "name": "generator-jhipster-micronaut",
-        "version": "0.5.0"
+        "version": "0.7.0"
       }
     ]
   },

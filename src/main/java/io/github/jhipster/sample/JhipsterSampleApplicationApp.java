@@ -10,11 +10,21 @@ import io.micronaut.core.cli.CommandLine;
 import io.micronaut.runtime.ApplicationConfiguration;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.runtime.server.EmbeddedServer;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
+@OpenAPIDefinition(
+    info = @Info(
+        title = "JhipsterSampleApplication",
+        version = "0.0",
+        description = "JhipsterSampleApplication API"
+    )
+)
 public class JhipsterSampleApplicationApp {
 
     private static final Logger log = LoggerFactory.getLogger(JhipsterSampleApplicationApp.class);
@@ -61,6 +71,11 @@ public class JhipsterSampleApplicationApp {
         checkProfiles(context.getEnvironment());
 
         logApplicationStartup(context);
+
+        if (environments.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT)) {
+            startH2WebConsole();
+        }
+
     }
 
     private static void logApplicationStartup(ApplicationContext context) {
@@ -83,5 +98,19 @@ public class JhipsterSampleApplicationApp {
             hostAddress,
             serverPort,
             context.getEnvironment().getActiveNames());
+    }
+
+    private static void startH2WebConsole() {
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            Class<?> serverClass = Class.forName("org.h2.tools.Server", true, loader);
+            Method createWebServer = serverClass.getMethod("createWebServer", String[].class);
+            Method start = serverClass.getMethod("start");
+
+            Object server = createWebServer.invoke(null, new Object[]{new String[]{"-properties", "src/main/resources/"}});
+            start.invoke(server);
+        } catch (Exception  e) {
+            log.trace("Unable to start H2 console.", e);
+        }
     }
 }

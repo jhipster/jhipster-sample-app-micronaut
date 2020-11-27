@@ -40,9 +40,6 @@ datasources:
 ---
 jpa:
   default:
-    packages-to-scan:
-      - io.github.jhipster.sample.domain
-      - io.github.jhipster.sample.repository
     show-sql: false
     properties:
       hibernate.dialect: 'org.hibernate.dialect.MySQL5InnoDBDialect'
@@ -104,7 +101,7 @@ micronaut:
           secret:
             generator:
               # As this is the PRODUCTION configuration, you must securely supply the application with a secret.
-              secret: YzNiNDlhN2IzNWYzNmZiOGFlZTVmZDYxODk3ZDE1N2Y2MjY5NTVjZmQ2ZWI3NTliYjAwNTkyNzQ2YzYxMDI2OWEyZDUxZjNmNDc0MTExYWUzZDlhZTllYzUwMjFiMTdkYWNhYzQ1NGJmNmZjMTRhNjBjNzUxZDljZDQyZWVkODE=
+              secret: ${jhipster.security.authentication.jwt.base64-secret:ZTRmZDc4OTAyYTlhNTg0ZmE5MzZkM2VjOGIwOTllYmFhYzdhMDk0YzZkYTA3OWFkODkwMDRkMDA3MDliNzZiMmY1OWZmMDUwZDBiMTdlYzczYjMwOWNhMDUwMzgyZTA1OTYwNmY1YzYyYTVhZGQxMTdiMjVhNTI2MmI4MmFlODg=}
               base64: true
               jws-algorithm: HS512
 

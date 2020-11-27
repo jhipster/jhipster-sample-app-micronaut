@@ -9,43 +9,22 @@
         <property name="autoIncrement" value="true"/>
 
     <!--
-        Added the entity Operation.
+        Added the entity Label.
     -->
-    <changeSet id="20201019164021-1" author="jhipster">
-        <createTable tableName="operation">
+    <changeSet id="20201127220418-1" author="jhipster">
+        <createTable tableName="label">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="date" type="datetime">
+            <column name="label" type="varchar(255)">
                 <constraints nullable="false" />
-            </column>
-            <column name="description" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="amount" type="decimal(21,2)">
-                <constraints nullable="false" />
-            </column>
-            <column name="bank_account_id" type="bigint">
-                <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <dropDefaultValue tableName="operation" columnName="date" columnDataType="datetime"/>
     </changeSet>
 
-    <changeSet id="20201019164021-1-relations" author="jhipster">
+    <changeSet id="20201127220418-1-relations" author="jhipster">
 
-        <createTable tableName="operation_label">
-            <column name="label_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="operation_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey columnNames="operation_id, label_id" tableName="operation_label"/>
-        
     </changeSet>
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
 
@@ -57,15 +36,13 @@
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
     -->
-    <changeSet id="20201019164021-1-data" author="jhipster" context="faker">
+    <changeSet id="20201127220418-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/operation.csv"
+                  file="config/liquibase/fake-data/label.csv"
                   separator=";"
-                  tableName="operation">
+                  tableName="label">
             <column name="id" type="numeric"/>
-            <column name="date" type="datetime"/>
-            <column name="description" type="string"/>
-            <column name="amount" type="numeric"/>
+            <column name="label" type="string"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

@@ -4,7 +4,7 @@ import io.github.jhipster.sample.domain.User;
 import io.github.jhipster.sample.util.JHipsterProperties;
 import io.micronaut.context.MessageSource;
 import io.micronaut.context.annotation.Property;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -89,7 +89,7 @@ public class MailServiceIT {
         assertThat(message.getHTMLText()).isInstanceOf(String.class);
         assertThat(message.getHTMLText()).hasToString("testContent");
     }
-    
+
     @Test
     void testSendEmailFromTemplate() throws Exception {
         User user = new User();

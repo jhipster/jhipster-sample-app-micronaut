@@ -3,13 +3,16 @@ package io.github.jhipster.sample.web.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.micronaut.transaction.TransactionOperations;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,20 +75,40 @@ public final class TestUtil {
         assertThat(domainObject1.hashCode()).isEqualTo(domainObject2.hashCode());
     }
 
-    /**
+/**
      * Makes a an executes a query to the EntityManager finding all stored objects.
      * @param <T> The type of objects to be searched
+     * @param transactionManager The instance of the TransactionOperations
      * @param em The instance of the EntityManager
      * @param clss The class type to be searched
      * @return A list of all found objects
      */
-    public static <T> List<T> findAll(EntityManager em, Class<T> clss) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(clss);
-        Root<T> rootEntry = cq.from(clss);
-        CriteriaQuery<T> all = cq.select(rootEntry);
-        TypedQuery<T> allQuery = em.createQuery(all);
-        return allQuery.getResultList();
+    public static <T> List<T> findAll(TransactionOperations<Connection> transactionManager, EntityManager em, Class<T> clss) {
+        return transactionManager.executeRead(status -> {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<T> cq = cb.createQuery(clss);
+            Root<T> rootEntry = cq.from(clss);
+            CriteriaQuery<T> all = cq.select(rootEntry);
+            TypedQuery<T> allQuery = em.createQuery(all);
+            return allQuery.getResultList();
+        });
+    }
+
+    /**
+     * Makes a an executes a query to the EntityManager removing all stored objects.
+     * @param transactionManager The instance of the TransactionOperations
+     * @param em The instance of the EntityManager
+     * @param clss The class type to be searched
+     * @param <T>
+     */
+    public static <T> void removeAll(TransactionOperations<Connection> transactionManager, EntityManager em, Class<T> clss) {
+        transactionManager.executeWrite(status -> {
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaDelete<T> query = cb.createCriteriaDelete(clss);
+            Root<T> root = query.from(clss);
+            query.where(root.isNotNull());
+            return em.createQuery(query).executeUpdate();
+        });
     }
 
     private TestUtil() {}

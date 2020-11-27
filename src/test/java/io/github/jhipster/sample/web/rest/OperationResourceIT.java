@@ -12,7 +12,9 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
-import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionOperations;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,15 +22,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.sql.Connection;
 import java.util.List;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -51,6 +54,12 @@ public class OperationResourceIT {
     @Inject
     private OperationRepository operationRepository;
 
+    @Inject
+    private EntityManager em;
+
+    @Inject
+    SynchronousTransactionManager<Connection> transactionManager;
+
     @Inject @Client("/")
     RxHttpClient client;
 
@@ -58,12 +67,12 @@ public class OperationResourceIT {
 
     @BeforeEach
     public void initTest() {
-        operation = createEntity();
+        operation = createEntity(transactionManager, em);
     }
 
     @AfterEach
     public void cleanUpTest() {
-        operationRepository.deleteAll();
+        deleteAll(transactionManager, em);
     }
 
     /**
@@ -72,12 +81,22 @@ public class OperationResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which requires the current entity.
      */
-    public static Operation createEntity() {
+    public static Operation createEntity(TransactionOperations<Connection> transactionManager, EntityManager em) {
         Operation operation = new Operation()
             .date(DEFAULT_DATE)
             .description(DEFAULT_DESCRIPTION)
             .amount(DEFAULT_AMOUNT);
         return operation;
+    }
+
+    /**
+     * Delete all operation entities.
+     *
+     * This is a static method, as tests for other entities might also need it,
+     * if they test an entity which requires the current entity.
+     */
+    public static void deleteAll(TransactionOperations<Connection> transactionManager, EntityManager em) {
+        TestUtil.removeAll(transactionManager, em, Operation.class);
     }
 
 
@@ -98,7 +117,7 @@ public class OperationResourceIT {
 
         assertThat(testOperation.getDate()).isEqualTo(DEFAULT_DATE);
         assertThat(testOperation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertEquals(testOperation.getAmount().compareTo(DEFAULT_AMOUNT), 0);
+        assertThat(testOperation.getAmount()).isEqualByComparingTo(DEFAULT_AMOUNT);
     }
 
     @Test
@@ -169,7 +188,7 @@ public class OperationResourceIT {
 
         assertThat(testOperation.getDate()).isEqualTo(DEFAULT_DATE);
         assertThat(testOperation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertEquals(testOperation.getAmount().compareTo(DEFAULT_AMOUNT), 0);
+        assertThat(testOperation.getAmount()).isEqualByComparingTo(DEFAULT_AMOUNT);
     }
 
     @Test
@@ -183,7 +202,7 @@ public class OperationResourceIT {
 
         assertThat(testOperation.getDate()).isEqualTo(DEFAULT_DATE);
         assertThat(testOperation.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertEquals(testOperation.getAmount().compareTo(DEFAULT_AMOUNT), 0);
+        assertThat(testOperation.getAmount()).isEqualByComparingTo(DEFAULT_AMOUNT);
     }
 
     @Test
@@ -224,7 +243,7 @@ public class OperationResourceIT {
 
         assertThat(testOperation.getDate()).isEqualTo(UPDATED_DATE);
         assertThat(testOperation.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertEquals(testOperation.getAmount().compareTo(UPDATED_AMOUNT), 0);
+        assertThat(testOperation.getAmount()).isEqualByComparingTo(UPDATED_AMOUNT);
     }
 
     @Test

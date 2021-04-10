@@ -9,8 +9,8 @@
 # More information on JHipster configuration properties:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
-logging:
-  level:
+logger:
+  levels:
     ROOT: INFO
     io.github.jhipster.sample: INFO
     io.github.jhipster: INFO
@@ -101,7 +101,7 @@ micronaut:
           secret:
             generator:
               # As this is the PRODUCTION configuration, you must securely supply the application with a secret.
-              secret: ${jhipster.security.authentication.jwt.base64-secret:ZTRmZDc4OTAyYTlhNTg0ZmE5MzZkM2VjOGIwOTllYmFhYzdhMDk0YzZkYTA3OWFkODkwMDRkMDA3MDliNzZiMmY1OWZmMDUwZDBiMTdlYzczYjMwOWNhMDUwMzgyZTA1OTYwNmY1YzYyYTVhZGQxMTdiMjVhNTI2MmI4MmFlODg=}
+              secret: ${jhipster.security.authentication.jwt.base64-secret:MzAzMzRmOTVlMzBjZjExMzEyZTBlMWM4MzZlNTQxNDQzMjIyZTA2NDI0MjBhZDhjYzgzOGIxZTg2ZDMxOWQ4ZWM0OWEwOTUwYWU5NzE5NjA3MTA0ZTE4MGQxYWVhNWRjNzk1NGVmNjQ0NDQ0NTQ4NDUyZjRjMzVjNTlkZmViMTY=}
               base64: true
               jws-algorithm: HS512
 

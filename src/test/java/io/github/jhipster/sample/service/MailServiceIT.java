@@ -61,7 +61,7 @@ public class MailServiceIT {
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         doNothing().when(mailer).sendMail(any(Email.class));
         mailService = new MailService(jHipsterProperties, mailer, messageSource, templateEngine);
     }

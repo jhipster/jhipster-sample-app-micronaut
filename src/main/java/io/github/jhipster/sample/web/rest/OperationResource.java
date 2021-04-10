@@ -7,6 +7,7 @@ import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.sample.util.HeaderUtil;
 import io.github.jhipster.sample.util.PaginationUtil;
 import io.micronaut.context.annotation.Value;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
@@ -24,7 +25,6 @@ import io.micronaut.transaction.annotation.ReadOnly;
 
 
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -63,7 +63,7 @@ public class OperationResource {
         if (operation.getId() != null) {
             throw new BadRequestAlertException("A new operation cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Operation result = operationRepository.mergeAndSave(operation);
+        Operation result = operationRepository.save(operation);
         URI location = new URI("/api/operations/" + result.getId());
         return HttpResponse.created(result).headers(headers -> {
             headers.location(location);
@@ -87,7 +87,7 @@ public class OperationResource {
         if (operation.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Operation result = operationRepository.mergeAndSave(operation);
+        Operation result = operationRepository.update(operation);
         return HttpResponse.ok(result).headers(headers ->
             HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, operation.getId().toString()));
     }

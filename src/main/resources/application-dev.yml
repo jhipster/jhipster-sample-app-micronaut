@@ -44,8 +44,8 @@ jpa:
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
 
-logging:
-  level:
+logger:
+  levels:
     ROOT: DEBUG
     io.github.jhipster: DEBUG
     io.github.jhipster.sample: DEBUG
@@ -71,7 +71,7 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: ${jhipster.security.authentication.jwt.base64-secret:ZTRmZDc4OTAyYTlhNTg0ZmE5MzZkM2VjOGIwOTllYmFhYzdhMDk0YzZkYTA3OWFkODkwMDRkMDA3MDliNzZiMmY1OWZmMDUwZDBiMTdlYzczYjMwOWNhMDUwMzgyZTA1OTYwNmY1YzYyYTVhZGQxMTdiMjVhNTI2MmI4MmFlODg=}
+              secret: ${jhipster.security.authentication.jwt.base64-secret:MzAzMzRmOTVlMzBjZjExMzEyZTBlMWM4MzZlNTQxNDQzMjIyZTA2NDI0MjBhZDhjYzgzOGIxZTg2ZDMxOWQ4ZWM0OWEwOTUwYWU5NzE5NjA3MTA0ZTE4MGQxYWVhNWRjNzk1NGVmNjQ0NDQ0NTQ4NDUyZjRjMzVjNTlkZmViMTY=}
               base64: true
               jws-algorithm: HS512
 

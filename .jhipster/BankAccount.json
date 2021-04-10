@@ -27,7 +27,7 @@
       "otherEntityField": "login"
     }
   ],
-  "changelogDate": "20201127220318",
+  "changelogDate": "20210410173425",
   "entityTableName": "bank_account",
   "dto": "no",
   "pagination": "no",

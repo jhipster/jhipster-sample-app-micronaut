@@ -9,8 +9,6 @@ import io.micronaut.data.jpa.repository.JpaRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.time.Instant;
@@ -19,45 +17,34 @@ import java.time.Instant;
  * Micronaut Data JPA repository for the {@link User} entity.
  */
 @Repository
-public abstract class UserRepository implements JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    private EntityManager entityManager;
     public static String USERS_BY_LOGIN_CACHE = "usersByLogin";
 
     public static String USERS_BY_EMAIL_CACHE = "usersByEmail";
     
 
-    public abstract Optional<User> findOneByActivationKey(String activationKey);
+    public Optional<User> findOneByActivationKey(String activationKey);
 
-    public abstract List<User> findAllByActivatedFalseAndCreatedDateBefore(Instant dateTime);
+    public List<User> findAllByActivatedFalseAndCreatedDateBefore(Instant dateTime);
 
-    public abstract Optional<User> findOneByResetKey(String resetKey);
+    public Optional<User> findOneByResetKey(String resetKey);
     
 
-    public abstract Optional<User> findOneByEmailIgnoreCase(String email);
+    public Optional<User> findOneByEmailIgnoreCase(String email);
 
     @EntityGraph(attributePaths = "authorities")
-    public abstract Optional<User> findOneById(Long id);
+    public Optional<User> findOneById(Long id);
 
     @EntityGraph(attributePaths = "authorities")
     @Cacheable(cacheNames = "usersByLogin")
-    public abstract Optional<User> findOneByLogin(String login);
+    public Optional<User> findOneByLogin(String login);
 
     @EntityGraph(attributePaths = "authorities")
     @Cacheable(cacheNames = "usersByEmail")
-    public abstract Optional<User> findOneByEmail(String email);
+    public Optional<User> findOneByEmail(String email);
 
-    public abstract Page<User> findAllByLoginNot(String login, Pageable pageable);
+    public Page<User> findAllByLoginNot(String login, Pageable pageable);
 
-    public abstract void update(@Id Long id, Instant createdDate);
-
-    public UserRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    @Transactional
-    public User mergeAndSave(User user) {
-        user = entityManager.merge(user);
-        return save(user);
-    }
+    public void update(@Id Long id, Instant createdDate);
 }

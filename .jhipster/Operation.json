@@ -33,7 +33,7 @@
       "otherEntityField": "name"
     }
   ],
-  "changelogDate": "20201127220518",
+  "changelogDate": "20210410173625",
   "entityTableName": "operation",
   "dto": "no",
   "pagination": "infinite-scroll",

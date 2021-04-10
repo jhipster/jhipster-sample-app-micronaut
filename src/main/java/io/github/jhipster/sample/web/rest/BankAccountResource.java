@@ -6,6 +6,7 @@ import io.github.jhipster.sample.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.sample.util.HeaderUtil;
 import io.micronaut.context.annotation.Value;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -57,7 +57,7 @@ public class BankAccountResource {
         if (bankAccount.getId() != null) {
             throw new BadRequestAlertException("A new bankAccount cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BankAccount result = bankAccountRepository.mergeAndSave(bankAccount);
+        BankAccount result = bankAccountRepository.save(bankAccount);
         URI location = new URI("/api/bank-accounts/" + result.getId());
         return HttpResponse.created(result).headers(headers -> {
             headers.location(location);
@@ -81,7 +81,7 @@ public class BankAccountResource {
         if (bankAccount.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        BankAccount result = bankAccountRepository.mergeAndSave(bankAccount);
+        BankAccount result = bankAccountRepository.update(bankAccount);
         return HttpResponse.ok(result).headers(headers ->
             HeaderUtil.createEntityUpdateAlert(headers, applicationName, true, ENTITY_NAME, bankAccount.getId().toString()));
     }

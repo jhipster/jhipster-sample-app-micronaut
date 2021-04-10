@@ -217,7 +217,7 @@ public class UserService {
                 }
                 String encryptedPassword = passwordEncoder.encode(newPassword);
                 user.setPassword(encryptedPassword);
-                user = userRepository.mergeAndSave(user);
+                user = userRepository.update(user);
                 this.clearUserCaches(user);
                 log.debug("Changed password for User: {}", user);
             });

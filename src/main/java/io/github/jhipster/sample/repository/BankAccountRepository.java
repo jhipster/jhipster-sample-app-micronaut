@@ -8,8 +8,6 @@ import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
 
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 
 import java.util.List;
 
@@ -18,22 +16,9 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 @Repository
-public abstract class BankAccountRepository implements JpaRepository<BankAccount, Long> {
-    
-    private final EntityManager entityManager;
+public interface BankAccountRepository extends JpaRepository<BankAccount, Long> {
 
 
     @Query("select bankAccount from BankAccount bankAccount where bankAccount.user.login = :username ")
-    abstract List<BankAccount> findByUserIsCurrentUser(String username);
-
-    public BankAccountRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    @Transactional
-    public BankAccount mergeAndSave(BankAccount bankAccount) {
-        bankAccount = entityManager.merge(bankAccount);
-        return save(bankAccount);
-    }
-
+    public List<BankAccount> findByUserIsCurrentUser(String username);
 }

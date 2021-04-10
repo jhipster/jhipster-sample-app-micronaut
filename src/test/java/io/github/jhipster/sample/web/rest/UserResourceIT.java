@@ -19,12 +19,16 @@ import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.micronaut.transaction.SynchronousTransactionManager;
+import io.micronaut.transaction.TransactionOperations;
 import io.micronaut.test.annotation.MockBean;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import java.sql.Connection;
 import java.time.Instant;
 import java.util.*;
 
@@ -68,6 +72,12 @@ public class UserResourceIT {
     AuthorityRepository authorityRepository;
 
     @Inject
+    private EntityManager em;
+
+    @Inject
+    SynchronousTransactionManager<Connection> transactionManager;
+
+    @Inject
     private UserMapper userMapper;
 
     @Inject
@@ -78,7 +88,7 @@ public class UserResourceIT {
 
     private User user;
 
-    public static User createEntity() {
+    public static User createEntity(TransactionOperations<Connection> transactionManager, EntityManager em) {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN + RandomStringUtils.randomAlphabetic(5));
         user.setPassword(RandomStringUtils.random(60));
@@ -91,9 +101,19 @@ public class UserResourceIT {
         return user;
     }
 
+    /**
+        * Delete all User entities.
+        *
+        * This is a static method, as tests for other entities might also need it,
+        * if they test an entity which requires the current entity.
+        */
+    public static void deleteAll(TransactionOperations<Connection> transactionManager, EntityManager em) {
+        TestUtil.removeAll(transactionManager, em, User.class);
+    }
+
     @BeforeAll
     public void initTest() {
-        user = createEntity();
+        user = createEntity(transactionManager, em);
         user.setLogin(DEFAULT_LOGIN);
         user.setEmail(DEFAULT_EMAIL);
         userRepository.saveAndFlush(user);
@@ -122,7 +142,7 @@ public class UserResourceIT {
 
 
     private void resetDefaultUser() {
-        User reInsert = createEntity();
+        User reInsert = createEntity(transactionManager, em);
         reInsert.setLogin(DEFAULT_LOGIN);
         reInsert.setEmail(DEFAULT_EMAIL);
         userRepository.deleteById(user.getId());

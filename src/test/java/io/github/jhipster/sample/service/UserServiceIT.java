@@ -215,7 +215,7 @@ public class UserServiceIT {
         Optional<User> testUser = userRepository.findOneByEmailIgnoreCase("alice2@example.com");
         assertThat(testUser.isPresent()).isTrue();
         testUser.get().setActivated(true);
-        userRepository.mergeAndSave(testUser.get());
+        userRepository.update(testUser.get());
 
         // Second (already activated) user
         Assertions.assertThrows(LoginAlreadyUsedException.class, () -> {

@@ -34,7 +34,7 @@
     "zone.js": "0.10.3"
   },
   "devDependencies": {
-    "@angular/cli": "10.0.0",
+    "@angular/cli": "15.2.7",
     "@angular/compiler-cli": "10.0.0",
     "@ngtools/webpack": "10.0.0",
     "@openapitools/openapi-generator-cli": "1.0.13-4.3.1",
